@@ -2,7 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-st.title("Demo Fitness Function")
+st.title("📊 Demo Fitness Function")
 st.write("This page/notebook presents an approach for the fitness function to be used in our future work on reinforcement learning.")
 st.write("Each score falls within the range [-1, 1] to ensure clarity and prevent any single score from taking priority \
          in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
@@ -12,15 +12,22 @@ st.write("Each score falls within the range [-1, 1] to ensure clarity and preven
 
 
 #Sidebar
-st.sidebar.markdown("## Random Seed Controls")
-if st.sidebar.checkbox("Random Seed", value=True):
+st.sidebar.markdown("## 🌿 Random Seed Controls")
+if st.sidebar.toggle("Random Seed", value=False, help="Toggle and random seeds will be used"):
     np.random.seed(None)
 else:
-    np.random.seed(0)
+    np.random.seed(42)
 st.sidebar.button("Regenerate Results")
 
+st.sidebar.markdown("## 🗺️ Navigation")
+st.sidebar.markdown("[🛤 Rail following score](#rail-following-score)")
+st.sidebar.markdown("[🦺 Motion Safety score](#motion-safety-score)")
+st.sidebar.markdown("[🎯 Trajectory Quality](#trajectory-quality)")
+st.sidebar.markdown("[🚶 Pedestrian Confort Score](#pedestrian-confort-score)")
+st.sidebar.markdown("[📦 Fitness function](#fitness-function)")
+
 # Rail following score
-st.markdown("### Rail following score")
+st.header("🛤 Rail following score", anchor="rail-following-score")
 st.markdown("The rail following score represents the distance between the initially given path to the autonomous \
             vehicle (AV) and its future position.\
              In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
@@ -75,7 +82,7 @@ ax[0].legend(loc='lower right')
 st.pyplot(fig)
 
 # Motion Safety score
-st.markdown("### Motion Safety score")
+st.header("🦺 Motion Safety score", anchor="motion-safety-score")
 st.markdown("Motion Safety refers to the assessment of potential risks and hazards associated with vehicle \
             movement, particularly in the presence of pedestrians. Key parameters involved in evaluating \
             motion safety include the evaluation radius (a circle around the car), the number of pedestrians within \
@@ -140,7 +147,7 @@ st.pyplot(fig)
 
 
 ### Trajectory Quality
-st.markdown("### Trajectory Quality")
+st.header("🎯 Trajectory Quality", anchor="trajectory-quality")
 st.markdown('Trajectory quality refers to the assessment of the smoothness and stability of a vehicle\'s trajectory \
             during motion. It is influenced by parameters such as the magnitude of acceleration ($|a|$) and the \
             magnitude zero limit ($m_0$). The magnitude of acceleration is computed using the formula:')
@@ -227,7 +234,7 @@ axe[3].legend()
 st.pyplot(fig)
 
 # Pedestrian Confort Score
-st.markdown("### Pedestrian Confort Score")
+st.header("🚶 Pedestrian Confort Score", anchor="pedestrian-confort-score")
 st.markdown(r"Pedestrian comfort is evaluated based on parameters such as the frequency of linear velocity changes experienced by pedestrians ($\bar{I}_{ucf}$) during their navigation and the frequency zero penalty ($f_0$).The comfort score ($T_c$) for pedestrians is computed using the following formula:")
 st.markdown(r"$$T_c = 1 - \frac{2}{1+e^{10(-\bar{I}_{ucf} + m_0)}}$$")
 st.markdown("This formula provides a measure of pedestrian comfort, with higher values of $T_c$ indicating \
@@ -253,7 +260,7 @@ st.markdown('This score can\'t really be used to learn a policy as it is a post 
 
 
 # Fitness function
-st.markdown("### Fitness function")
+st.header("📦 Fitness function", anchor="fitness-function")
 st.markdown("The fitness function ($f$) for evaluating the performance of an autonomous navigation \
             system integrates multiple criteria, including rail following, safety, pedestrian comfort, and \
             trajectory quality. Each criterion is weighted by a corresponding coefficient ($c_{fr}$, $c_{s}$, $c_{pc}$, \
