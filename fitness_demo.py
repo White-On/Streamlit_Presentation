@@ -31,6 +31,9 @@ st.markdown("The rail following score represents the distance between the initia
 st.markdown(r"$$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
 st.markdown("This formula provides a measure of how closely the AV is following the rail, with higher values \
             of $R_c$ indicating better adherence to the track.")
+
+st.image("rail_illustration.png", use_column_width=True)
+
 # Plot
 max_distance_display = 20
 d = np.linspace(0, max_distance_display, 100)
