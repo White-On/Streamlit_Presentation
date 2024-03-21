@@ -19,8 +19,6 @@ else:
     np.random.seed(0)
 st.sidebar.button("Regenerate Results")
 
-
-
 # Rail following score
 st.markdown("### Rail following score")
 st.markdown("The rail following score represents the distance between the initially given path to the autonomous \
@@ -67,9 +65,9 @@ ax[1].annotate(f'Distance to rail: {distance_to_rail:.2f}\n Rail reward: {Rc:.2f
 
 ax[0].plot(path[:, 0], path[:, 1], 'r')
 ax[0].scatter(futur_point[0], futur_point[1], c='g', label='Future point')
-ax[0].scatter(path[0, 0], path[0, 1], c='g', label='Start') 
+ax[0].scatter(path[0, 0], path[0, 1], c='y', label='Start') 
 ax[0].scatter(path[1, 0], path[1, 1], c='b', label='End')
-ax[0].scatter(normal_point[0], normal_point[1], c='y', label='Normal point')
+ax[0].scatter(normal_point[0], normal_point[1], c='r', label='Normal point')
 ax[0].set_xlim(-20, 20)
 ax[0].set_ylim(-20, 20)
 ax[0].legend(loc='lower right')
@@ -98,6 +96,8 @@ mu = 2.5 # in meter
 # radom direction from the vehicle
 random_vector = np.random.uniform(-np.pi, np.pi, (2, nb_pedestrian))
 random_vector = np.array([np.cos(random_vector[0]), np.sin(random_vector[1])])
+# normalize the vector
+random_vector /= np.linalg.norm(random_vector, axis=0)
 # random distance
 d = np.random.randn(nb_pedestrian) * mu + eval_radius/2
 # random position
@@ -105,6 +105,7 @@ pedestrian_pos = d * random_vector
 
 penalty_distance = st.slider("Penalty distance", 0, 20, 6)
 mean_distance = np.mean(d)
+lowess_distance = d[np.argmin(np.abs(d))]
 linspace_distance = np.linspace(0, eval_radius, 100)
 Sc = safety_reward(linspace_distance, penalty_distance)
 
@@ -126,7 +127,12 @@ axe[1].set_xlabel('Mean distance to the pedestrian')
 axe[1].set_ylabel('Reward')
 axe[1].grid(True, linewidth=0.5, linestyle='--')
 axe[1].axvline(mean_distance, color='r', linestyle='--', label='Mean distance')
-axe[1].annotate(f'Mean distance: {mean_distance:.2f}\nSafety reward: {safety_reward(mean_distance,penalty_distance):.2f}',(mean_distance + 1, 0.5))
+axe[1].annotate(f'Mean distance: {mean_distance:.2f}\nSafety reward: {safety_reward(mean_distance,penalty_distance):.2f}',
+                (mean_distance + 1, 0.5))
+axe[1].axvline(lowess_distance, color='r', linestyle='--', label='Lowess distance')
+axe[1].annotate(f'Lowess Distance: {lowess_distance:.2f}\nSafety reward: {safety_reward(lowess_distance,penalty_distance):.2f}',
+                (lowess_distance + 1, 0.0))
+
 
 st.write(r"We created a scenario where our vehicle is positioned in the middle of a shared space with pedestrians around. In this representation, the pedestrians are positioned according to a normal distribution ($mu = \frac{eval_r}{2}, \sigma = 2.5$) shaped like a donut around the car.")
 st.pyplot(fig)
@@ -240,6 +246,10 @@ plt.ylabel('Reward')
 plt.title('Pedestrian reward function')
 plt.grid(True, linewidth=0.5, linestyle='--')
 st.pyplot(fig)
+
+st.markdown("### 🚨 Warning 🚨")
+st.markdown('This score can\'t really be used to learn a policy as it is a post simulation evaluation metric. \
+            We need a metric that can evaluate the pedestrian comfort in a given time/state.')
 
 
 # Fitness function
