@@ -4,17 +4,7 @@ import numpy as np
 
 img_path = 'img/'
 
-# Hypothesis
 st.set_page_config(page_title="Fitness Function Demo", page_icon="📊", layout="wide")
-
-st.title("📊 Fitness Function's Components")
-st.write("This page/notebook presents an approach for the fitness function to be used in our future work on reinforcement learning.")
-st.write("Each score falls within the range [-1, 1] to ensure clarity and prevent any single score from taking priority \
-         in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
-         tailored to effectively reward or penalize specific behaviors. Throughout the rest of the presentation, \
-         feel free to adjust some parameters or generate new scenarios to observe how the scores of each component \
-         evolve.")
-
 
 #Sidebar
 st.sidebar.markdown("## 🌿 Random Seed Controls")
@@ -30,6 +20,32 @@ st.sidebar.markdown("[🦺 Motion Safety score](#motion-safety-score)")
 st.sidebar.markdown("[🎯 Trajectory Quality](#trajectory-quality)")
 st.sidebar.markdown("[🚶 Pedestrian Confort Score](#pedestrian-confort-score)")
 st.sidebar.markdown("[📦 Fitness function](#fitness-function)")
+
+
+st.title("📊 Fitness Function's Components")
+st.write("This page/notebook presents an approach for the fitness function to be used in our future work on reinforcement learning.")
+st.write("Each score falls within the range [-1, 1] to ensure clarity and prevent any single score from taking priority \
+         in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
+         tailored to effectively reward or penalize specific behaviors. Throughout the rest of the presentation, \
+         feel free to adjust some parameters or generate new scenarios to observe how the scores of each component \
+         evolve.")
+
+# Hypothesis
+st.write("## 📝 Hypothesis")
+st.markdown("Our initial hypotheses are as follows:\n\
+- The autonomous vehicle (AV) is initially provided with a path to guide it through the scenario. \
+         This path is described as a list of waypoints.\n\
+- The AV can perceive the environment through sensors. These sensors provide the vehicle with information \
+         about the environment state, allowing it to decide on actions based on its policy.\n\
+- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation to \
+         simplify learning and task modeling. Therefore, the environment will be represented as a rectangle. To \
+         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe.\n\
+- Pedestrians will be represented as circles to approximate their footprint.\
+         ")
+
+
+
+
 
 # Rail following score
 st.header("🛤 Rail following score", anchor="rail-following-score")
