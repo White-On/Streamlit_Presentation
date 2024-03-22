@@ -2,6 +2,8 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
+img_path = 'img/'
+
 # Hypothesis
 st.set_page_config(page_title="Fitness Function Demo", page_icon="📊", layout="wide")
 
@@ -40,7 +42,7 @@ st.markdown(r"$$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
 st.markdown("This formula provides a measure of how closely the AV is following the rail, with higher values \
             of $R_c$ indicating better adherence to the track.")
 
-st.image("rail_illustration.png", use_column_width=True)
+st.image(f"{img_path}rail_illustration.png", use_column_width=True)
 
 # Plot
 max_distance_display = 20
