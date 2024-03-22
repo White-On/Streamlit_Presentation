@@ -32,23 +32,31 @@ st.write("Each score falls within the range [-1, 1] to ensure clarity and preven
 
 # Hypothesis
 st.write("## 📝 Hypothesis")
-st.markdown("Our initial hypotheses are as follows:\n\
-- The autonomous vehicle (AV) is initially provided with a path to guide it through the scenario. \
-         This path is described as a list of waypoints.\n\
-- The AV can perceive the environment through sensors. These sensors provide the vehicle with information \
-         about the environment state, allowing it to decide on actions based on its policy.\n\
-- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation to \
-         simplify learning and task modeling. Therefore, the environment will be represented as a rectangle. To \
-         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe.\n\
-- Pedestrians will be represented as circles to approximate their footprint.\
-         ")
+# Car Hypothesis
+st.markdown("### 🚗 Car Hypothesis")
+st.markdown("- The autonomous vehicle (AV) is initially provided with a path to guide it through the scenario. This \
+            path is described as a **list of waypoints**. Depending on the precision of the path that we wish to achieve, \
+            we can use different kinds of splines such as *Bezier curves, Hermite splines, or B-Splines*. However, \
+            for simplicity, we will stick to **linear splines** for now, which are just a succession of straight lines.")
+spline_img = ['Bezier_forth_anim.gif', 'Hermite_spline.png', 'B_spline.png', 'linear_spline.png']
+st.image([f"{img_path}{name}" for name in spline_img], width=300, caption=['Bezier curve', 'Hermite spline', 'B-Spline', 'Linear spline'])
 
+st.markdown("- The AV can perceive the environment through sensors. These sensors provide the vehicle with information \
+        about the environment state, allowing it to decide on actions based on its policy.")
+st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation \
+         to simplify learning and task modeling. Therefore, the environment will be represented as a rectangle. To \
+         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe.")
 
-
-
+# Pedestrian Hypothesis
+st.markdown("### 🚶 Pedestrian Hypothesis")
+st.markdown("- Pedestrians are represented as **circle** in the environment. They can move freely within the \
+            environment, and their positions are updated at each time step.")
 
 # Rail following score
 st.header("🛤 Rail following score", anchor="rail-following-score")
+
+st.markdown("> 📌 **Side note**: This metric is inspired by path following in the context of autonomous agents. **To my knowledge**, no paper has utilized this specific metric.")
+
 st.markdown("The rail following score represents the distance between the initially given path to the autonomous \
             vehicle (AV) and its future position.\
              In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
@@ -104,6 +112,9 @@ st.pyplot(fig)
 
 # Motion Safety score
 st.header("🦺 Motion Safety score", anchor="motion-safety-score")
+
+st.markdown("> 📌 **Side note**: This metric is inspired by path following in the context of autonomous agents. **To my knowledge**, no paper has utilized this specific metric.")
+
 st.markdown("Motion Safety refers to the assessment of potential risks and hazards associated with vehicle \
             movement, particularly in the presence of pedestrians. Key parameters involved in evaluating \
             motion safety include the evaluation radius (a circle around the car), the number of pedestrians within \
@@ -169,6 +180,9 @@ st.pyplot(fig)
 
 ### Trajectory Quality
 st.header("🎯 Trajectory Quality", anchor="trajectory-quality")
+
+st.markdown("> 📌 **Side note**: this metric is inspired by path following in the context of autonomous agents. No paper uses this metric.")
+
 st.markdown('Trajectory quality refers to the assessment of the smoothness and stability of a vehicle\'s trajectory \
             during motion. It is influenced by parameters such as the magnitude of acceleration ($|a|$) and the \
             magnitude zero limit ($m_0$). The magnitude of acceleration is computed using the formula:')
@@ -256,6 +270,9 @@ st.pyplot(fig)
 
 # Pedestrian Confort Score
 st.header("🚶 Pedestrian Confort Score", anchor="pedestrian-confort-score")
+
+st.markdown("> 📌 **Side note**: this metric is inspired by path following in the context of autonomous agents. No paper uses this metric.")
+
 st.markdown(r"Pedestrian comfort is evaluated based on parameters such as the frequency of linear velocity changes experienced by pedestrians ($\bar{I}_{ucf}$) during their navigation and the frequency zero penalty ($f_0$).The comfort score ($T_c$) for pedestrians is computed using the following formula:")
 st.markdown(r"$$T_c = 1 - \frac{2}{1+e^{10(-\bar{I}_{ucf} + m_0)}}$$")
 st.markdown("This formula provides a measure of pedestrian comfort, with higher values of $T_c$ indicating \
