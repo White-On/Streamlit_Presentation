@@ -2,7 +2,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-st.title("📊 Demo Fitness Function")
+# Hypothesis
+st.set_page_config(page_title="Fitness Function Demo", page_icon="📊", layout="wide")
+
+st.title("📊 Fitness Function's Components")
 st.write("This page/notebook presents an approach for the fitness function to be used in our future work on reinforcement learning.")
 st.write("Each score falls within the range [-1, 1] to ensure clarity and prevent any single score from taking priority \
          in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
