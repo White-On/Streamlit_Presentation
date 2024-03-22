@@ -15,12 +15,12 @@ else:
 st.sidebar.button("Regenerate Results")
 
 st.sidebar.markdown("## 🗺️ Navigation")
+st.sidebar.markdown("[🔬 Hypothesis](#hypothesis)")
 st.sidebar.markdown("[🛤 Rail following score](#rail-following-score)")
 st.sidebar.markdown("[🦺 Motion Safety score](#motion-safety-score)")
 st.sidebar.markdown("[🎯 Trajectory Quality](#trajectory-quality)")
 st.sidebar.markdown("[🚶 Pedestrian Confort Score](#pedestrian-confort-score)")
 st.sidebar.markdown("[📦 Fitness function](#fitness-function)")
-
 
 st.title("📊 Fitness Function's Components")
 st.write("This page/notebook presents an approach for the fitness function to be used in our future work on reinforcement learning.")
@@ -31,7 +31,7 @@ st.write("Each score falls within the range [-1, 1] to ensure clarity and preven
          evolve.")
 
 # Hypothesis
-st.write("## 📝 Hypothesis")
+st.header("🔬 Hypothesis", anchor="hypothesis")
 # Car Hypothesis
 st.markdown("### 🚗 Car Hypothesis")
 st.markdown("- The autonomous vehicle (AV) is initially provided with a path to guide it through the scenario. This \
@@ -41,16 +41,27 @@ st.markdown("- The autonomous vehicle (AV) is initially provided with a path to 
 spline_img = ['Bezier_forth_anim.gif', 'Hermite_spline.png', 'B_spline.png', 'linear_spline.png']
 st.image([f"{img_path}{name}" for name in spline_img], width=300, caption=['Bezier curve', 'Hermite spline', 'B-Spline', 'Linear spline'])
 
-st.markdown("- The AV can perceive the environment through sensors. These sensors provide the vehicle with information \
+st.markdown("- The AV can perceive the environment **through sensors**. These sensors provide the vehicle with information \
         about the environment state, allowing it to decide on actions based on its policy.")
 st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation \
          to simplify learning and task modeling. Therefore, the environment will be represented as a rectangle. To \
-         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe.")
+         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe. [4.1x1.8m]")
+zoe_img = ['zoe1.webp', 'zoe2.webp', 'zoe3.webp']
+st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=200)
+
+st.markdown("- For the physical representation, we will use the **[kinematic bicycle model](https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Control/BicycleModel.html)**. This \
+            will limit the vehicle's mobility enough to keep the simulation interesting, yet it \
+            will be simpler than other more complicated models.")
+st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
 
 # Pedestrian Hypothesis
 st.markdown("### 🚶 Pedestrian Hypothesis")
 st.markdown("- Pedestrians are represented as **circle** in the environment. They can move freely within the \
             environment, and their positions are updated at each time step.")
+st.markdown("- Pedestians have their own model to move and this model is based on the **Social Force Model** \
+            which is a physics-based model that simulates the movement of pedestrians in a crowd. \
+            This model can be access by the AV to predict the pedestrian movement.")
+st.markdown("- The pedestrians should be able to form groups to represent real social dynamics.")
 
 # Rail following score
 st.header("🛤 Rail following score", anchor="rail-following-score")
@@ -62,11 +73,11 @@ st.markdown("The rail following score represents the distance between the initia
              In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
             the AV and the rail, respectively. The formula used to calculate the rail following score ($R_c$) is \
             given by:")
-st.markdown(r"$$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
+st.markdown(r"> $$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
 st.markdown("This formula provides a measure of how closely the AV is following the rail, with higher values \
             of $R_c$ indicating better adherence to the track.")
 
-st.image(f"{img_path}rail_illustration.png", use_column_width=True)
+st.image(f"{img_path}rail_illustration.png", caption = "illustration from Nature of Code by Daniel Shiffman",  use_column_width=True)
 
 # Plot
 max_distance_display = 20
@@ -113,16 +124,21 @@ st.pyplot(fig)
 # Motion Safety score
 st.header("🦺 Motion Safety score", anchor="motion-safety-score")
 
-st.markdown("> 📌 **Side note**: This metric is inspired by path following in the context of autonomous agents. **To my knowledge**, no paper has utilized this specific metric.")
+st.markdown("> 📌 **Side note**: This metric is inspired by the paper \
+            [Kabtoul, Maria, Manon Prédhumeau, Anne Spalanzani, Julie Dugdale, et \
+            Philippe Martinet. « How To Evaluate the Navigation of Autonomous Vehicles \
+            Around Pedestrians? » IEEE Transactions on Intelligent Transportation Systems, \
+            2024, 1‑11. https://doi.org/10.1109/TITS.2023.3323662]. In the paper, this \
+            metric was sugested but **not actually used**")
 
 st.markdown("Motion Safety refers to the assessment of potential risks and hazards associated with vehicle \
             movement, particularly in the presence of pedestrians. Key parameters involved in evaluating \
             motion safety include the evaluation radius (a circle around the car), the number of pedestrians within \
             this radius ($nb_{p}$), the distance between the vehicle and each pedestrian ($d_i$), and the penalty \
             distance ($d_p$). The safety score ($S_c$) is computed using the following formula:")
-st.markdown(r"$$S_c = -1 + \frac{2}{1+e^{-\frac{\sum_{i=1}^{nb_{p}}d_i}{d_i} + d_p}}$$")
+st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\frac{\sum_{i=1}^{nb_{p}}d_i}{d_i} + d_p}}$$")
 st.write("which is equivalent to:")
-st.markdown(r"$$S_c = -1 + \frac{2}{1+e^{-\bar{d_i} + d_p}}$$")
+st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\bar{d_i} + d_p}}$$")
 st.markdown("This formula quantifies the level of safety during vehicle motion, with higher values of $S_c$ indicating \
             a greater degree of safety.")
 
@@ -181,15 +197,18 @@ st.pyplot(fig)
 ### Trajectory Quality
 st.header("🎯 Trajectory Quality", anchor="trajectory-quality")
 
-st.markdown("> 📌 **Side note**: this metric is inspired by path following in the context of autonomous agents. No paper uses this metric.")
+st.markdown("> 📌 **Side note**: A similar metric was used in [Kabtoul, Maria, Manon Prédhumeau, Anne Spalanzani, \
+            Julie Dugdale, et Philippe Martinet. « How To Evaluate the Navigation of Autonomous Vehicles Around \
+            Pedestrians? » IEEE Transactions on Intelligent Transportation Systems, \
+            2024, 1‑11. https://doi.org/10.1109/TITS.2023.3323662] but wasn't adapted to our case")
 
 st.markdown('Trajectory quality refers to the assessment of the smoothness and stability of a vehicle\'s trajectory \
             during motion. It is influenced by parameters such as the magnitude of acceleration ($|a|$) and the \
             magnitude zero limit ($m_0$). The magnitude of acceleration is computed using the formula:')
-st.markdown(r"$$|a| = \sqrt{\frac{dx^2}{dt^2} + \frac{dy^2}{dt^2}}$$")
+st.markdown(r"> $$|a| = \sqrt{\frac{dx^2}{dt^2} + \frac{dy^2}{dt^2}}$$")
 st.markdown("where $dx$ and $dy$ represent the changes in position with respect to time.")
 st.markdown("The quality score ($T_c$) for the trajectory is then determined using the following formula:")
-st.markdown(r"$$T_c = 1 - \frac{2}{1+e^{-|a| + m_0}}$$")
+st.markdown(r"> $$T_c = 1 - \frac{2}{1+e^{-|a| + m_0}}$$")
 st.markdown("This formula quantifies the quality of the trajectory, \
             with higher values of $T_c$ indicating a smoother and more stable trajectory.")
 
@@ -271,10 +290,10 @@ st.pyplot(fig)
 # Pedestrian Confort Score
 st.header("🚶 Pedestrian Confort Score", anchor="pedestrian-confort-score")
 
-st.markdown("> 📌 **Side note**: this metric is inspired by path following in the context of autonomous agents. No paper uses this metric.")
+st.markdown(r"> 📌 **Side note**: $\bar{I}_{ucf}$ is a metric used in [D. Helbing, P. Moln ́ ar, I. J. Farkas, and K. Bolay, “Self-organizing pedestrian movement,” Environment and Planning B: Planning and Design, vol. 28, no. 3, pp. 361–383, 2001.]")
 
 st.markdown(r"Pedestrian comfort is evaluated based on parameters such as the frequency of linear velocity changes experienced by pedestrians ($\bar{I}_{ucf}$) during their navigation and the frequency zero penalty ($f_0$).The comfort score ($T_c$) for pedestrians is computed using the following formula:")
-st.markdown(r"$$T_c = 1 - \frac{2}{1+e^{10(-\bar{I}_{ucf} + m_0)}}$$")
+st.markdown(r"> $$T_c = 1 - \frac{2}{1+e^{10(-\bar{I}_{ucf} + m_0)}}$$")
 st.markdown("This formula provides a measure of pedestrian comfort, with higher values of $T_c$ indicating \
             a more comfortable and less disruptive interaction with the vehicle.")
 
@@ -304,8 +323,13 @@ st.markdown("The fitness function ($f$) for evaluating the performance of an aut
             trajectory quality. Each criterion is weighted by a corresponding coefficient ($c_{fr}$, $c_{s}$, $c_{pc}$, \
             $c_{t}$) to reflect its importance in the overall evaluation process. The fitness function is defined as \
             follows:")
-st.markdown(r"$$f = c_{fr} \cdot R_c + c_{s} \cdot S_c + c_{pc} \cdot P_c + c_{t} \cdot T_c$$")
+st.markdown(r"> $$f = c_{fr} \cdot R_c + c_{s} \cdot S_c + c_{pc} \cdot P_c + c_{t} \cdot T_c$$")
 st.markdown("Here, $R_c$, $R_s$, $R_{pc}$, and $R_t$ represent the scores obtained for rail following, \
             safety, pedestrian comfort, and trajectory quality, respectively. These scores are computed based \
             on the corresponding evaluation criteria. The resulting fitness score ($f$) falls within the \
             range $[-4, 4]$, with higher values indicating better overall performance of the navigation system.")
+# Senario
+st.markdown("## 🎨 Scenario")
+st.write("I did'nt have the time ⏳ yet to create visual representation of the scenarios \
+         but here are the draft that I will use to create the scenarios.")
+st.image(f"{img_path}scenarios.jpg", caption="Scenario representation", use_column_width=True)
