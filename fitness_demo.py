@@ -341,6 +341,14 @@ st.markdown("Here, $R_c$, $R_s$, $R_{pc}$, and $R_t$ represent the scores obtain
             range $[-4, 4]$, with higher values indicating better overall performance of the navigation system.")
 # Senario
 st.markdown("## 🎨 Scenario")
-st.write("I did'nt have the time ⏳ yet to create visual representation of the scenarios \
-         but here are the draft that I will use to create the scenarios.")
-st.image(f"{img_path}scenarios.jpg", caption="Scenario representation", use_column_width=True)
+# st.write("I did'nt have the time ⏳ yet to create visual representation of the scenarios \
+#          but here are the draft that I will use to create the scenarios.")
+
+senario_img = [f'{img_path}scenario{i}.png' for i in range(1,7)]
+caption = ['Frontal', 'Back', 'Lateral', 'Bi-Lateral', 'Chaos', 'Legend']
+st.image(senario_img, caption=caption, width=400) 
+
+# Video
+video_file = open(f'{img_path}illustration_senario.mp4', 'rb')
+video_file = video_file.read()
+st.video(video_file)
