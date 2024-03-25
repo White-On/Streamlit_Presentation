@@ -47,12 +47,13 @@ st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, ou
          to simplify learning and task modeling. Therefore, the environment will be represented as a rectangle. To \
          maintain real-world proportions, we will use the dimensions of a standard Renault Zoe. [4.1x1.8m]")
 zoe_img = ['zoe1.webp', 'zoe2.webp', 'zoe3.webp']
-st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=200)
+st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=300)
 
 st.markdown("- For the physical representation, we will use the **[kinematic bicycle model](https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Control/BicycleModel.html)**. This \
             will limit the vehicle's mobility enough to keep the simulation interesting, yet it \
             will be simpler than other more complicated models.")
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
+st.markdown("- The limits speed for the AV is set to [-1, 4] m/s, and the maximum acceleration is set to [0.5,2] m/s².")
 
 # Pedestrian Hypothesis
 st.markdown("### 🚶 Pedestrian Hypothesis")
@@ -61,7 +62,8 @@ st.markdown("- Pedestrians are represented as **circle** in the environment. The
 st.markdown("- Pedestians have their own model to move and this model is based on the **Social Force Model** \
             which is a physics-based model that simulates the movement of pedestrians in a crowd. \
             This model can be access by the AV to predict the pedestrian movement.")
-st.markdown("- The pedestrians should be able to form groups to represent real social dynamics.")
+st.markdown("- The pedestrians will walk with a prefered speed of 1.5 m/s but we may refine this values to \
+            follow a normal distribution with a mean of 1.5 m/s and a standard deviation of 0.5 m/s.")
 
 # Rail following score
 st.header("🛤 Rail following score", anchor="rail-following-score")
@@ -140,7 +142,8 @@ st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\frac{\sum_{i=1}^{nb_{p}}d_i}{d_i} +
 st.write("which is equivalent to:")
 st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\bar{d_i} + d_p}}$$")
 st.markdown("This formula quantifies the level of safety during vehicle motion, with higher values of $S_c$ indicating \
-            a greater degree of safety.")
+            a greater degree of safety. We also add the same score but only evaluated with the closest pedestrian \
+            to compare the two scores.")
 
 def safety_reward(distance, penalty_distance):
     return 2 / (1 + np.exp(-distance + penalty_distance)) - 1
@@ -256,19 +259,18 @@ st.pyplot(fig)
 dxdl = np.gradient(tangent[:, 0], l[:-1].flatten())
 dydl = np.gradient(tangent[:, 1], l[:-1].flatten())
 
-
+ 
 magnitude_roc = np.sqrt(dxdl**2 + dydl**2)
 esp = 0.0001
 # reward  = 1 / (magnitude_roc + esp)
 magniture_zero_limit = st.slider("Magnitude zero limit", 0.0, 5.0, 1.0, step=0.5)
 reward = -2 / (1 + np.exp(-magnitude_roc + magniture_zero_limit)) +1
 
-fig, axe = plt.subplots(1, 4, figsize=(15, 5))
+fig, axe = plt.subplots(1, 4, figsize=(15, 5), sharex=True, sharey=True)
 axe[0].plot(l[:-1], dxdl, label='x')
 axe[0].set_title('rate of change of the x component\n of the tangent vector', fontsize=10)
 axe[0].grid(True, linewidth=0.5, linestyle='--')
 axe[0].legend()
-
 
 axe[1].plot(l[:-1], dydl, label='y')
 axe[1].set_title('rate of change of the y component\n of the tangent vector', fontsize=10)
@@ -284,6 +286,8 @@ axe[3].plot(l[:-1], reward, label='reward')
 axe[3].set_title('reward', fontsize=10)
 axe[3].grid(True, linewidth=0.5, linestyle='--')
 axe[3].legend()
+
+fig.supxlabel('normalized time')
 
 st.pyplot(fig)
 
@@ -313,7 +317,14 @@ st.pyplot(fig)
 
 st.markdown("### 🚨 Warning 🚨")
 st.markdown('This score can\'t really be used to learn a policy as it is a post simulation evaluation metric. \
-            We need a metric that can evaluate the pedestrian comfort in a given time/state.')
+            We need a metric that can evaluate the pedestrian comfort in a given time/state.\n\n')
+st.markdown("Following some advice, the best option to evaluate the comfort level of pedestrians in our environment \
+            would be to perform a similar operation as the trajectory quality but from the perspective of pedestrians. \
+            We would evaluate the rate of change of velocity of all pedestrians and use it as a metric to assess how \
+            our AV constrains pedestrian movements. However, this metric may be too computationally expensive. An \
+            alternative approach for evaluating comfort in pedestrian areas would be to assess how limited \
+            pedestrians are in their movements. Another idea would be to use the number of points added in \
+            Alexis' physical model (the one with springs to constrain pedestrians).")
 
 
 # Fitness function
