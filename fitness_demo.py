@@ -15,20 +15,26 @@ else:
 st.sidebar.button("Regenerate Results")
 
 st.sidebar.markdown("## 🗺️ Navigation")
+st.sidebar.markdown("[📦 Fitness function](#fitness-function)")
 st.sidebar.markdown("[🔬 Hypothesis](#hypothesis)")
-st.sidebar.markdown("[🛤 Rail following score](#rail-following-score)")
+st.sidebar.markdown("[🛤 Path following score](#path-following-score)")
 st.sidebar.markdown("[🦺 Motion Safety score](#motion-safety-score)")
 st.sidebar.markdown("[🎯 Trajectory Quality](#trajectory-quality)")
 st.sidebar.markdown("[🚶 Pedestrian Confort Score](#pedestrian-confort-score)")
-st.sidebar.markdown("[📦 Fitness function](#fitness-function)")
+st.sidebar.markdown("[🎨 Scenario](#scenario)")
+st.sidebar.markdown("[📚 References](#reference)")
 
-st.title("📊 Fitness Function's Components")
-st.write("This page/notebook presents an approach for the fitness function to be used in our future work on reinforcement learning.")
-st.write("Each score falls within the range [-1, 1] to ensure clarity and prevent any single score from taking priority \
-         in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
-         tailored to effectively reward or penalize specific behaviors. Throughout the rest of the presentation, \
-         feel free to adjust some parameters or generate new scenarios to observe how the scores of each component \
-         evolve.")
+
+
+#Problem/Context
+st.title("Problem/Context")
+st.markdown('We Consider a shared space scenario where autonomous vehicles navigate among \
+            pedestrians. Given a predefined path leading to a goal destination within this shared space, the \
+            autonomous vehicle is tasked with adapting its driving behavior to ensure safety, avoid collisions with pedestrian, \
+            minimize disturbance to pedestrians and social groups, maintain smooth maneuvering, and adhere to the \
+            given path as closely as possible. The objective is *not merely to navigate around the crowd*, but rather \
+            to follow the specified path while dynamically adjusting its trajectory based on real-time situational \
+            awareness and environmental factors.')
 
 # Hypothesis
 st.header("🔬 Hypothesis", anchor="hypothesis")
@@ -36,50 +42,78 @@ st.header("🔬 Hypothesis", anchor="hypothesis")
 st.markdown("### 🚗 Car Hypothesis")
 st.markdown("- The autonomous vehicle (AV) is initially provided with a path to guide it through the scenario. This \
             path is described as a **list of waypoints**. Depending on the precision of the path that we wish to achieve, \
-            we can use different kinds of splines such as *Bezier curves, Hermite splines, or B-Splines*. However, \
+            we can get those waypoints using splines such as *Bezier curves, Hermite splines, or B-Splines*. However, \
             for simplicity, we will stick to **linear splines** for now, which are just a succession of straight lines.")
 spline_img = ['Bezier_forth_anim.gif', 'Hermite_spline.png', 'B_spline.png', 'linear_spline.png']
 st.image([f"{img_path}{name}" for name in spline_img], width=300, caption=['Bezier curve', 'Hermite spline', 'B-Spline', 'Linear spline'])
 
-st.markdown("- The AV can perceive the environment **through sensors**. These sensors provide the vehicle with information \
-        about the environment state, allowing it to decide on actions based on its policy.")
-st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation \
-         to simplify learning and task modeling. Therefore, the environment will be represented as a rectangle. To \
-         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe. [4.1x1.8m]")
-zoe_img = ['zoe1.webp', 'zoe2.webp', 'zoe3.webp']
-st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=300)
+st.markdown("- The AV can perceive the environment **through sensors**. A good portion of the State of the Art \
+            in autonomous driving is based on the use of **LiDAR, RADAR, and cameras**. We choose to use \
+            a **LiDAR sensor** to detect pedestrians  as we don't need to identify them, only to detect them.\
+            With the LiDAR sensor, we will be able to represent the environment as a Occupancy Grid Map.\
+            We will do the Hypothesis that the LiDAR sensor can detect pedestrians in a **range of 20m** and a \
+            **field of view of 360°**.")
 
-st.markdown("- For the physical representation, we will use the **[kinematic bicycle model](https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Control/BicycleModel.html)**. This \
-            will limit the vehicle's mobility enough to keep the simulation interesting, yet it \
-            will be simpler than other more complicated models.")
+st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation \
+         to simplify learning and task modeling. Therefore, the AV will be represented as a rectangle. To \
+         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe **[4.1x1.8m]**.")
+zoe_img = ['zoe1.webp', 'zoe2.webp', 'zoe3.webp']
+st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=300) 
+
+st.markdown("- For the physical representation, we will use the **[kinematic bicycle model](https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Control/BicycleModel.html)**. \
+            We  want to keep the model simple and easy to understand and we don't need to model the dynamics of the car.")
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
-st.markdown("- The limits speed for the AV is set to [-1, 4] m/s, and the maximum acceleration is set to [0.5,2] m/s².")
+st.markdown("- To enhance the realism of our model and guarantee safe driving behavior, the limits speed for the AV is set \
+            to **[-1, 4] m/s**, and the maximum acceleration is set to **[-0.5,2] m/s²**. We grant the AV the ability to \
+            go **backward** to explore pentential behaviors but we may refine this behavior to only go forward.")
 
 # Pedestrian Hypothesis
 st.markdown("### 🚶 Pedestrian Hypothesis")
-st.markdown("- Pedestrians are represented as **circle** in the environment. They can move freely within the \
-            environment, and their positions are updated at each time step.")
+st.markdown("- Pedestrians can move freely within the environment, and their positions are updated at each time step.\
+            In the simulator, they will be represented as circles with a radius of 0.3m. The circle representation \
+            provide a good approximation of the space occupied by pedestrians (In a top-down perspective, a \
+            pedestrian can rotate around the center, here the head). ")
 st.markdown("- Pedestians have their own model to move and this model is based on the **Social Force Model** \
-            which is a physics-based model that simulates the movement of pedestrians in a crowd. \
-            This model can be access by the AV to predict the pedestrian movement.")
+            which is a computational framework used to simulate the movement of individuals within a crowd by \
+            modeling the interactions between them as forces. It describes how pedestrians navigate through a \
+            space by considering factors such as attraction between groups and repulsion from obstacles. \
+            The AV has prior knowledge of the pedestrian's model and use it to predict their movements and adapt its \
+            trajectory accordingly.")
 st.markdown("- The pedestrians will walk with a prefered speed of 1.5 m/s but we may refine this values to \
-            follow a normal distribution with a mean of 1.5 m/s and a standard deviation of 0.5 m/s.")
+            follow a normal distribution as $\mathcal{N}(1.5, 0.5)$.")
 
-# Rail following score
-st.header("🛤 Rail following score", anchor="rail-following-score")
+# Fitness function
+st.header("📊 Fitness Function's Components", anchor="fitness-function")
+st.markdown("To address our problem effectively, we require a comprehensive function to assess the behavior \
+            and decisions made by our agent. In essence, our focus lies on four core aspects crucial for vehicle \
+            operation: **safety, collision avoidance with pedestrians, minimizing disruption to pedestrians and social \
+            groups, ensuring smooth maneuvering, and adhering closely to the prescribed path**. To achieve this, we \
+            decompose our function into four distinct components that can be tuned and refined independently.")
+st.markdown("We name this function ($f$). Each criterion is weighted by a corresponding coefficient ($c_{fr}$, $c_{s}$, $c_{pc}$, \
+            $c_{t}$) to reflect its importance in the overall evaluation process. The fitness function is defined as \
+            follows:")
+st.markdown(r"> $$f = c_{fr} \cdot R_c + c_{s} \cdot S_c + c_{pc} \cdot P_c + c_{t} \cdot T_c$$")
+st.markdown("Here, $R_c$, $R_s$, $R_{pc}$, and $R_t$ represent the scores obtained for Path following, \
+            safety, pedestrian comfort, and trajectory quality, respectively. These scores are computed based \
+            on the corresponding evaluation criteria.**Each component falls within the range $[-1, 1]$** to ensure clarity and prevent any single score from taking priority \
+         in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
+         tailored to effectively reward or penalize specific behaviors.The resulting fitness score ($f$) falls \
+            within the range $[-4, 4]$, with higher values indicating better overall performance of the navigation system.")
+# Path following score
+st.header("🛤 Path following score", anchor="path-following-score")
 
-st.markdown("> 📌 **Side note**: This metric is inspired by path following in the context of autonomous agents. **To my knowledge**, no paper has utilized this specific metric.")
+st.markdown("> 📌 **Side note**: This metric is inspired by path following in the context of autonomous agents.")
 
-st.markdown("The rail following score represents the distance between the initially given path to the autonomous \
+st.markdown("The path following score represents the distance between the initially given path to the autonomous \
             vehicle (AV) and its future position.\
              In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
-            the AV and the rail, respectively. The formula used to calculate the rail following score ($R_c$) is \
+            the AV and the path, respectively. The formula used to calculate the path following score ($R_c$) is \
             given by:")
 st.markdown(r"> $$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
-st.markdown("This formula provides a measure of how closely the AV is following the rail, with higher values \
+st.markdown("This formula provides a measure of how closely the AV is following the path, with higher values \
             of $R_c$ indicating better adherence to the track.")
 
-st.image(f"{img_path}rail_illustration.png", caption = "illustration from Nature of Code by Daniel Shiffman",  use_column_width=True)
+st.image(f"{img_path}path_following_illustration.png", use_column_width=True)
 
 # Plot
 max_distance_display = 20
@@ -89,9 +123,9 @@ Rc =1-2 / (1 + np.exp(-d + penalty_distance))
 fig , ax = plt.subplots(1, 2 , figsize=(10, 5))
 
 ax[1].plot(d, Rc)
-ax[1].set_xlabel('distance between the future position and the rail')
+ax[1].set_xlabel('distance between the future position and the path')
 ax[1].set_ylabel('Reward')
-ax[1].set_title('Reward function for the rail')
+ax[1].set_title('Reward function for path following')
 ax[1].xaxis.set_ticks(np.arange(0, max_distance_display+1, 5))
 ax[1].grid(True, linewidth=0.5, linestyle='--')
 ax[1].set_xlim(0, max_distance_display)
@@ -109,7 +143,7 @@ normal_point = path[0] + d * b / np.linalg.norm(b)
 distance_to_rail = np.linalg.norm(futur_point - normal_point)
 Rc = 1 - 2 / (1 + np.exp(-distance_to_rail + penalty_distance))
 ax[1].axvline(distance_to_rail, color='r', linestyle='--')
-ax[1].annotate(f'Distance to rail: {distance_to_rail:.2f}\n Rail reward: {Rc:.2f}',
+ax[1].annotate(f'Distance to path: {distance_to_rail:.2f}\n path following reward: {Rc:.2f}',
                 (distance_to_rail + 1, 0.5))
 
 ax[0].plot(path[:, 0], path[:, 1], 'r')
@@ -326,21 +360,8 @@ st.markdown("Following some advice, the best option to evaluate the comfort leve
             pedestrians are in their movements. Another idea would be to use the number of points added in \
             Alexis' physical model (the one with springs to constrain pedestrians).")
 
-
-# Fitness function
-st.header("📦 Fitness function", anchor="fitness-function")
-st.markdown("The fitness function ($f$) for evaluating the performance of an autonomous navigation \
-            system integrates multiple criteria, including rail following, safety, pedestrian comfort, and \
-            trajectory quality. Each criterion is weighted by a corresponding coefficient ($c_{fr}$, $c_{s}$, $c_{pc}$, \
-            $c_{t}$) to reflect its importance in the overall evaluation process. The fitness function is defined as \
-            follows:")
-st.markdown(r"> $$f = c_{fr} \cdot R_c + c_{s} \cdot S_c + c_{pc} \cdot P_c + c_{t} \cdot T_c$$")
-st.markdown("Here, $R_c$, $R_s$, $R_{pc}$, and $R_t$ represent the scores obtained for rail following, \
-            safety, pedestrian comfort, and trajectory quality, respectively. These scores are computed based \
-            on the corresponding evaluation criteria. The resulting fitness score ($f$) falls within the \
-            range $[-4, 4]$, with higher values indicating better overall performance of the navigation system.")
 # Senario
-st.markdown("## 🎨 Scenario")
+st.header("🎨 Scenario", anchor="scenario")
 st.markdown("To conduct our experiments effectively, we are creating five scenarios to \
             observe the results of our model in different dynamic environments. Most of \
             these scenarios are inspired by the article *[Kabtoul, Maria, Manon Prédhumeau, \
@@ -379,3 +400,5 @@ video_file = open(f'{img_path}illustration_senario.mp4', 'rb')
 video_file = video_file.read()
 st.video(video_file)
 st.write('Link to the full video: [Illustration of the scenarios](https://www.youtube.com/watch?v=DLaMMedWFn8)')
+
+st.header("📚 References", anchor="reference")
