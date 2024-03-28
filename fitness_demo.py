@@ -99,6 +99,55 @@ st.markdown("Here, $R_c$, $R_s$, $R_{pc}$, and $R_t$ represent the scores obtain
          in the overall representation. To achieve this, all scores are derived from a modified sigmoid function \
          tailored to effectively reward or penalize specific behaviors.The resulting fitness score ($f$) falls \
             within the range $[-4, 4]$, with higher values indicating better overall performance of the navigation system.")
+# Sigmoid
+m = st.slider("m", -10.0, 10.0, 2.0, step=1.0)
+n = st.slider("n", 0.0, 10.0, 0.2, step=0.1)
+st.markdown("### 📈 Sigmoid Function")
+fig, ax = plt.subplots(2, 3, figsize=(15, 10))
+x = np.linspace(-10, 10, 100)
+y = 1 / (1 + np.exp(-x))
+ax[0,0].plot(x, y)
+ax[0,0].set_title(r'$\frac{1}{1 + e^{x}}$')
+ax[0,0].grid(True, linewidth=0.5, linestyle='--')
+ax[0,0].yaxis.set_ticks(np.arange(0, 1.1, 0.25))
+
+y = 2 / (1 + np.exp(-x))
+ax[0,1].plot(x, y)
+ax[0,1].set_title(r'$\frac{2}{1 + e^{x}}$')
+ax[0,1].grid(True, linewidth=0.5, linestyle='--')
+ax[0,1].yaxis.set_ticks(np.arange(0, 2.1, 0.5))
+
+y = 2 / (1 + np.exp(-x)) - 1
+ax[0,2].plot(x, y)
+ax[0,2].set_title(r'$\frac{2}{1 + e^{x}} - 1$')
+ax[0,2].grid(True, linewidth=0.5, linestyle='--')
+ax[0,2].yaxis.set_ticks(np.arange(-1, 1.1, 0.5))
+
+y = -2 / (1 + np.exp(-x)) + 1
+ax[1,0].plot(x, y)
+ax[1,0].set_title(r'$-\frac{2}{1 + e^{x}} + 1$')
+ax[1,0].grid(True, linewidth=0.5, linestyle='--')
+ax[1,0].yaxis.set_ticks(np.arange(-1, 1.1, 0.5))
+
+
+y = 2 / (1 + np.exp((-x + m))) - 1
+ax[1,1].plot(x, y)
+ax[1,1].set_title(r'$\frac{2}{1 + e^{x + m}} - 1$')
+ax[1,1].grid(True, linewidth=0.5, linestyle='--')
+ax[1,1].yaxis.set_ticks(np.arange(-1, 1.1, 0.5))
+
+y = 2 / (1 + np.exp(-x * n)) - 1
+ax[1,2].plot(x, y)
+ax[1,2].set_title(r'$\frac{2}{1 + e^{nx}} - 1$')
+ax[1,2].grid(True, linewidth=0.5, linestyle='--')
+ax[1,2].yaxis.set_ticks(np.arange(-1, 1.1, 0.5))
+ax[1,2].set_ylim(-1.1, 1.1)
+
+
+
+
+st.pyplot(fig)
+
 # Path following score
 st.header("🛤 Path following score", anchor="path-following-score")
 
@@ -119,7 +168,7 @@ st.image(f"{img_path}path_following_illustration.png", use_column_width=True)
 max_distance_display = 20
 d = np.linspace(0, max_distance_display, 100)
 penalty_distance = st.slider("Penalty distance", 0, 20, 10)
-Rc =1-2 / (1 + np.exp(-d + penalty_distance))
+Rc = 1-2 / (1 + np.exp(-d + penalty_distance))
 fig , ax = plt.subplots(1, 2 , figsize=(10, 5))
 
 ax[1].plot(d, Rc)
@@ -142,7 +191,7 @@ d = np.linalg.norm(a) * np.cos(np.arccos(np.dot(a, b) / (np.linalg.norm(a) * np.
 normal_point = path[0] + d * b / np.linalg.norm(b)
 distance_to_rail = np.linalg.norm(futur_point - normal_point)
 Rc = 1 - 2 / (1 + np.exp(-distance_to_rail + penalty_distance))
-ax[1].axvline(distance_to_rail, color='r', linestyle='--')
+ax[1].axvline(distance_to_rail, color='g', linestyle='--')
 ax[1].annotate(f'Distance to path: {distance_to_rail:.2f}\n path following reward: {Rc:.2f}',
                 (distance_to_rail + 1, 0.5))
 
@@ -166,10 +215,10 @@ st.markdown("> 📌 **Side note**: This metric is inspired by the paper \
             Around Pedestrians? » IEEE Transactions on Intelligent Transportation Systems, \
             2024, 1‑11. https://doi.org/10.1109/TITS.2023.3323662]. In the paper, this \
             metric was sugested but **not actually used**")
-
+st.image(f'{img_path}motion_safety_notation.png')
 st.markdown("Motion Safety refers to the assessment of potential risks and hazards associated with vehicle \
             movement, particularly in the presence of pedestrians. Key parameters involved in evaluating \
-            motion safety include the evaluation radius (a circle around the car), the number of pedestrians within \
+            motion safety include the evaluation radius ($eval_r$), the number of pedestrians within \
             this radius ($nb_{p}$), the distance between the vehicle and each pedestrian ($d_i$), and the penalty \
             distance ($d_p$). The safety score ($S_c$) is computed using the following formula:")
 st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\frac{\sum_{i=1}^{nb_{p}}d_i}{d_i} + d_p}}$$")
@@ -204,7 +253,8 @@ Sc = safety_reward(linspace_distance, penalty_distance)
 fig, axe = plt.subplots(1, 2, figsize=(10, 5))
 
 axe[0].scatter(pedestrian_pos[0], pedestrian_pos[1], label='Pedestrian')
-axe[0].scatter(0, 0, c='r', label='Vehicle')
+# the vehicle is a rectangle
+axe[0].scatter(0, 0, label='Vehicle', c='r', marker='s', s=100)
 axe[0].set_title('Pedestrian position')
 axe[0].set_xlabel('x')
 axe[0].set_ylabel('y')
