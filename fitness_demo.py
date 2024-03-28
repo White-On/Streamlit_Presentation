@@ -29,10 +29,10 @@ st.sidebar.markdown("[📚 References](#reference)")
 #Problem/Context
 st.title("Problem/Context")
 st.markdown('We Consider a shared space scenario where autonomous vehicles navigate among \
-            pedestrians. Given a predefined path leading to a goal destination within this shared space, the \
-            autonomous vehicle is tasked with adapting its driving behavior to ensure safety, avoid collisions with pedestrian, \
-            minimize disturbance to pedestrians and social groups, maintain smooth maneuvering, and adhere to the \
-            given path as closely as possible. The objective is *not merely to navigate around the crowd*, but rather \
+            pedestrians in a simulation. Given a predefined path leading to a goal destination within this shared space, the \
+            autonomous vehicle is tasked with adapting its driving behavior to ensure safety [[1]](#reference), avoid collisions with pedestrian, \
+            minimize disturbance to pedestrians and social groups, maintain smooth maneuvering[[3]](#reference), and adhere to the \
+            given path as closely as possible[[5]](#reference). The objective is *not merely to navigate around the crowd*, but rather \
             to follow the specified path while dynamically adjusting its trajectory based on real-time situational \
             awareness and environmental factors.')
 
@@ -47,12 +47,11 @@ st.markdown("- The autonomous vehicle (AV) is initially provided with a path to 
 spline_img = ['Bezier_forth_anim.gif', 'Hermite_spline.png', 'B_spline.png', 'linear_spline.png']
 st.image([f"{img_path}{name}" for name in spline_img], width=300, caption=['Bezier curve', 'Hermite spline', 'B-Spline', 'Linear spline'])
 
-st.markdown("- The AV can perceive the environment **through sensors**. A good portion of the State of the Art \
-            in autonomous driving is based on the use of **LiDAR, RADAR, and cameras**. We choose to use \
-            a **LiDAR sensor** to detect pedestrians  as we don't need to identify them, only to detect them.\
-            With the LiDAR sensor, we will be able to represent the environment as a Occupancy Grid Map.\
-            We will do the Hypothesis that the LiDAR sensor can detect pedestrians in a **range of 20m** and a \
-            **field of view of 360°**.")
+st.markdown("- In the reality, the AV can perceive the environment **through sensors**. As we are working in a simulator, we choose \
+            to represent the environment percieved by the AV as a **2D Occupancy Grid Map**[[6]](#reference)[[7]](#reference)[[8]](#reference)\
+             like we capture it though a camera or a Lidar. This map will be updated \
+            We will do the Hypothesis that the AV can map pedestrians in a **range of 20m** and a in a \
+            **field of view of 360°** around it .")
 
 st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation \
          to simplify learning and task modeling. Therefore, the AV will be represented as a rectangle. To \
@@ -61,7 +60,7 @@ zoe_img = ['zoe1.webp', 'zoe2.webp', 'zoe3.webp']
 st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=300) 
 
 st.markdown("- For the physical representation, we will use the **[kinematic bicycle model](https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Control/BicycleModel.html)**. \
-            We  want to keep the model simple and easy to understand and we don't need to model the dynamics of the car.")
+            We  want to keep the model simple, easy to understand and we will disregard the dynamics of the car.")
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
 st.markdown("- To enhance the realism of our model and guarantee safe driving behavior, the limits speed for the AV is set \
             to **[-1, 4] m/s**, and the maximum acceleration is set to **[-0.5,2] m/s²**. We grant the AV the ability to \
@@ -350,7 +349,7 @@ esp = 0.0001
 magniture_zero_limit = st.slider("Magnitude zero limit", 0.0, 5.0, 1.0, step=0.5)
 reward = -2 / (1 + np.exp(-magnitude_roc + magniture_zero_limit)) +1
 
-fig, axe = plt.subplots(1, 4, figsize=(15, 5), sharex=True, sharey=True)
+fig, axe = plt.subplots(1, 4, figsize=(15, 5))
 axe[0].plot(l[:-1], dxdl, label='x')
 axe[0].set_title('rate of change of the x component\n of the tangent vector', fontsize=10)
 axe[0].grid(True, linewidth=0.5, linestyle='--')
@@ -366,7 +365,7 @@ axe[2].set_title('magnitude of the rate of change\n of the tangent vector', font
 axe[2].grid(True, linewidth=0.5, linestyle='--')
 axe[2].legend()
 
-axe[3].plot(l[:-1], reward, label='reward')
+axe[3].plot(l[:-1], reward, label='reward') 
 axe[3].set_title('reward', fontsize=10)
 axe[3].grid(True, linewidth=0.5, linestyle='--')
 axe[3].legend()
@@ -449,6 +448,30 @@ st.image(senario_img, caption=caption, width=400)
 video_file = open(f'{img_path}illustration_senario.mp4', 'rb')
 video_file = video_file.read()
 st.video(video_file)
-st.write('Link to the full video: [Illustration of the scenarios](https://www.youtube.com/watch?v=DLaMMedWFn8)')
+st.write('Link to the full video: [IROS21 rendered --- Anne Spalanzani](https://www.youtube.com/watch?v=DLaMMedWFn8)')
 
 st.header("📚 References", anchor="reference")
+st.markdown("[1] Salvini, Pericle, Diego Paez-Granados, et Aude Billard. 2022. « Safety \
+            Concerns Emerging from Robots Navigating in Crowded Pedestrian Areas ». International \
+            Journal of Social Robotics 14 (2): 441‑62. https://doi.org/10.1007/s12369-021-00796-4.")
+st.markdown("[2] Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. 2022. « Proactive And Smooth Maneuvering \
+            For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), \
+            4723‑29. Philadelphia, PA, USA: IEEE. https://doi.org/10.1109/ICRA46639.2022.9812255.")
+st.markdown("[3] Kabtoul, Maria, Manon Prédhumeau, Anne Spalanzani, Julie Dugdale, et Philippe Martinet. 2024. \
+            « How To Evaluate the Navigation of Autonomous Vehicles Around Pedestrians? » IEEE Transactions on \
+            Intelligent Transportation Systems, 1‑11. https://doi.org/10.1109/TITS.2023.3323662.")
+st.markdown("[4] Alia, Chebly, Tagne Gilles, Talj Reine, et Charara Ali. 2015. « Local Trajectory Planning and \
+            Tracking of Autonomous Vehicles, Using Clothoid Tentacles Method ». In 2015 IEEE Intelligent Vehicles \
+            Symposium (IV), 674‑79. Seoul, South Korea: IEEE. https://doi.org/10.1109/IVS.2015.7225762.")
+st.markdown("[5] https://medium.com/coinmonks/how-robots-follow-routes-pid-control-2a74226c5c99")
+st.markdown("[6] Mouhagir, Hafida, Veronique Cherfaoui, Reine Talj, Francois Aioun, et Franck Guillemard. 2017. \
+            « Using Evidential Occupancy Grid for Vehicle Trajectory Planning under Uncertainty with Tentacles ». \
+            In 2017 IEEE 20th International Conference on Intelligent Transportation Systems (ITSC), 1‑7. Yokohama: \
+            IEEE. https://doi.org/10.1109/ITSC.2017.8317808.")
+st.markdown("[7] Genevois, Thomas, Anne Spalanzani, et Christian Laugier. 2023. \
+            « Interaction-Aware Predictive Collision Detector for Human-Aware Collision Avoidance ». \
+            In 2023 IEEE Intelligent Vehicles Symposium (IV), 1‑7. Anchorage, AK, USA: \
+            IEEE. https://doi.org/10.1109/IV55152.2023.10186778.")
+st.markdown("[8] Alia, Chebly, Tagne Gilles, Talj Reine, et Charara Ali. 2015. « Local Trajectory Planning \
+            and Tracking of Autonomous Vehicles, Using Clothoid Tentacles Method ». In 2015 IEEE Intelligent \
+            Vehicles Symposium (IV), 674‑79. Seoul, South Korea: IEEE. https://doi.org/10.1109/IVS.2015.7225762.")
