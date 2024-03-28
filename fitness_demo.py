@@ -72,14 +72,15 @@ st.markdown("- Pedestrians can move freely within the environment, and their pos
             In the simulator, they will be represented as circles with a radius of 0.3m. The circle representation \
             provide a good approximation of the space occupied by pedestrians (In a top-down perspective, a \
             pedestrian can rotate around the center, here the head). ")
+st.image(f"{img_path}pedestrian_illustration.png", width=300)
 st.markdown("- Pedestians have their own model to move and this model is based on the **Social Force Model** \
             which is a computational framework used to simulate the movement of individuals within a crowd by \
             modeling the interactions between them as forces. It describes how pedestrians navigate through a \
             space by considering factors such as attraction between groups and repulsion from obstacles. \
             The AV has prior knowledge of the pedestrian's model and use it to predict their movements and adapt its \
             trajectory accordingly.")
-st.markdown("- The pedestrians will walk with a prefered speed of 1.5 m/s but we may refine this values to \
-            follow a normal distribution as $\mathcal{N}(1.5, 0.5)$.")
+st.markdown("- The pedestrians will walk with a prefered speed of 1.4 m/s [[9]](#reference)[[10]](#reference) but we may refine this values to \
+            follow a normal distribution as $\mathcal{N}(1.4, 0.5)$.")
 
 # Fitness function
 st.header("📊 Fitness Function's Components", anchor="fitness-function")
@@ -475,3 +476,7 @@ st.markdown("[7] Genevois, Thomas, Anne Spalanzani, et Christian Laugier. 2023. 
 st.markdown("[8] Alia, Chebly, Tagne Gilles, Talj Reine, et Charara Ali. 2015. « Local Trajectory Planning \
             and Tracking of Autonomous Vehicles, Using Clothoid Tentacles Method ». In 2015 IEEE Intelligent \
             Vehicles Symposium (IV), 674‑79. Seoul, South Korea: IEEE. https://doi.org/10.1109/IVS.2015.7225762.")
+st.markdown("[9] https://en.wikipedia.org/wiki/Preferred_walking_speed#cite_note-Browning2006-1")
+st.markdown("[10] Reynolds, T.R. (1987), Stride length and its determinants in \
+            humans, early hominids, primates, and mammals. Am. J. Phys. Anthropol., 72: \
+            101-115. https://doi.org/10.1002/ajpa.1330720113")
