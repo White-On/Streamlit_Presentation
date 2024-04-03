@@ -64,9 +64,17 @@ st.image(f"{img_path}AV_perception.gif")
 st.markdown("- For the physical representation, we will use the **[kinematic bicycle model](https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Control/BicycleModel.html)**. \
             We  want to keep the model simple, easy to understand and we will disregard the dynamics of the car.")
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
+
 st.markdown("- To enhance the realism of our model and guarantee safe driving behavior, the speed for the AV is\
             $v_{AV} \in[-1, 4]$ m/s with a prefered speed equal to $v^*_{AV} = \max(v_{AV})$ , and the acceleration is $a_{AV} \in [-0.5,2]$ m/s². We grant the AV the ability to \
             go **backward** to explore pentential behaviors but we may refine this behavior to only go forward.")
+st.markdown("- The output of the model will consist of two components: \
+            **the magnitude of the autonomous vehicle's velocity** denoted as $||v_{AV}||$, and \
+            **the steering angle of the front wheels**, represented by $\delta$. These parameters \
+            enable us to calculate the necessary values required for maneuvering within the simulator \
+            environment.")
+st.image(f"{img_path}input_model_illustration.gif")
+
 
 # Pedestrian Hypothesis
 st.markdown("### 🚶 Pedestrian Hypothesis")
