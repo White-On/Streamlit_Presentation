@@ -4,7 +4,7 @@ import numpy as np
 
 img_path = 'img/'
 
-st.set_page_config(page_title="Fitness Function Demo", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Learning to cross a crowd with an autonomous vehicle", page_icon="🤖", layout="wide")
 
 
 

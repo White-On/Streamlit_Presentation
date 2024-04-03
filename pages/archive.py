@@ -4,7 +4,7 @@ import numpy as np
 
 img_path = 'img/'
 
-st.sidebar.page_link("fitness_demo.py", label="Main Presentation", icon="👉")
+st.sidebar.page_link("main_presentation.py", label="Main Presentation", icon="👉")
 st.sidebar.markdown("## 🗺️ Navigation")
 st.sidebar.markdown("[🎯 Trajectory Quality](#trajectory-quality)")
 st.sidebar.markdown("[🚶 Pedestrian Confort Score](#pedestrian-confort-score)")
