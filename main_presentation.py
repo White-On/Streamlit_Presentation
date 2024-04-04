@@ -49,7 +49,7 @@ st.image([f"{img_path}{name}" for name in spline_img], width=300, caption=['Herm
 
 st.markdown("- Although the AV can navigate in a 3D environment using Gazebo, our study will focus on a 2D representation \
          to simplify learning and task modeling. Therefore, the AV will be represented as a rectangle. To \
-         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe **$s = [s_x, s_y] = [4.1, 1.8]$m**.")
+         maintain real-world proportions, we will use the dimensions of a standard Renault Zoe **$s = [s_x, s_y] = [4.1, 1.8]$m**[[11]](#reference).")
 zoe_img = ['zoe1.webp', 'zoe2.webp', 'zoe3.webp']
 st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=300) 
 
@@ -66,13 +66,17 @@ st.markdown("- For the physical representation, we will use the **[kinematic bic
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
 
 st.markdown("- To enhance the realism of our model and guarantee safe driving behavior, the speed for the AV is\
-            $v_{AV} \in[-1, 4]$ m/s with a prefered speed equal to $v^*_{AV} = \max(v_{AV})$ , and the acceleration is $a_{AV} \in [-0.5,2]$ m/s². We grant the AV the ability to \
+            $\\vec{v_{AV}} \in[0, 4]$ m/s with a prefered speed equal to $\\vec{v^*_{AV}} = \max(\\vec{v_{AV}})$ , and the acceleration is $\\vec{a_{AV}} \in [0,2]$ m/s². We grant the AV the ability to \
             go **backward** to explore pentential behaviors but we may refine this behavior to only go forward.")
+
 st.markdown("- The output of the model will consist of two components: \
-            **the magnitude of the autonomous vehicle's velocity** denoted as $||v_{AV}||$, and \
-            **the steering angle of the front wheels**, represented by $\delta$. These parameters \
-            enable us to calculate the necessary values required for maneuvering within the simulator \
-            environment.")
+            **the self-propelled scalar speed of the autonomous vehicle's velocity** denoted as $v_{AV}$, and \
+            **the steering angle of the front wheels**, represented by $\delta$. \
+            If we were to model our vehicle's behavior after a real Renault Zoe, \
+            we would need to constrain the steering angle ($\delta$) within the range of \
+            [-13.73, 13.73] degrees (value obtained with the formula of the kinematic bicycle model), as the minimum braking range ($R$) for this car model \
+            is 10.60 meters[[11]](#reference). These parameters enable us to calculate the necessary values \
+            required for maneuvering within the simulator environment.")
 st.image(f"{img_path}input_model_illustration.gif")
 
 
@@ -315,3 +319,4 @@ st.markdown("[9] https://en.wikipedia.org/wiki/Preferred_walking_speed#cite_note
 st.markdown("[10] Reynolds, T.R. (1987), Stride length and its determinants in \
             humans, early hominids, primates, and mammals. Am. J. Phys. Anthropol., 72: \
             101-115. https://doi.org/10.1002/ajpa.1330720113")
+st.markdown("[11] Renault Zoe's technical sheet https://www.renault.fr/vehicules-electriques/zoe/fiche-technique.html")
