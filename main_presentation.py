@@ -18,10 +18,8 @@ else:
 st.sidebar.button("Regenerate Results")
 
 st.sidebar.markdown("## 🗺️ Navigation")
-st.sidebar.markdown("[📦 Fitness function](#fitness-function)")
 st.sidebar.markdown("[🔬 Hypothesis](#hypothesis)")
-st.sidebar.markdown("[🛤 Path following score](#path-following-score)")
-st.sidebar.markdown("[🦺 Motion Safety score](#motion-safety-score)")
+st.sidebar.markdown("[📦 Reward function](#reward-function)")
 st.sidebar.markdown("[🎨 Scenarios](#scenario)")
 st.sidebar.markdown("[📚 References](#reference)")
 
@@ -96,30 +94,34 @@ st.markdown("- Pedestians have their own model to move and this model is based o
 st.markdown("- The pedestrians will walk with a speed $v_{ped} \in [0,2]$ m/s and a prefered speed $v_{ped}^* = 1.4$ m/s [[9]](#reference)[[10]](#reference) but we may refine this values to \
             follow a normal distribution as $\mathcal{N}(1.4, 0.5)$.")
 
-# Fitness function
-st.header("📊 Fitness Function's Components", anchor="fitness-function")
-st.markdown("To effectively tackle our problem, we need a comprehensive function \
+# Reward function
+st.header("📊 Reward Function's Components", anchor="reward-function")
+st.markdown("To effectively tackle our problem, we need a comprehensive value \
             to evaluate the behavior and decisions of our agent. Primarily, \
-            our focus revolves around two critical aspects for vehicle operation: ensuring safety \
-            and collision avoidance, and closely following the prescribed path. To accomplish this, \
-            we decompose our function into two distinct components that can be individually \
+            our focus revolves around four critical aspects for vehicle operation: ensuring safety \
+            and collision avoidance, following the prescribed path and maintain prefered speed. To accomplish this, \
+            we decompose our value into four distinct components that can be individually \
             fine-tuned and refined.")
-st.markdown("We name this function ($f$). We name each component as follows:")
-st.markdown("- **$R_p$**: Path following score with the corresponding coefficient $c_{fp}$")
-st.markdown("- **$R_s$**: Motion Safety score with the corresponding coefficient $c_{s}$")
-st.markdown("The fitness function is defined as follows:")
-st.markdown(r"> $$f = c_{fp} \cdot R_p + c_{s} \cdot R_s$$")
-st.markdown("These scores are computed based on the corresponding evaluation criteria.**Each \
-            component falls within the range $[-1, 1]$** to ensure clarity and prevent any single \
-            score from taking priority in the overall representation. To achieve this, all scores \
-            are derived from a modified sigmoid function \
-            tailored to effectively reward or penalize specific behaviors. The resulting fitness score ($f$) falls \
-            within the range $[-2, 2]$, with higher values indicating better overall performance of the navigation system.")
+st.markdown("We name this value ($R$). We name each component as follows:")
+st.markdown("- $r_c$: collision reward, to punish the agent for colliding with the pedestrian.")
+st.markdown("- $r_{nc}$ : near collision reward, to punish the agent for getting too close to \
+            the pedestrian. Not just a discrete reward, but a continuous one, to encourage the \
+            agent to keep a safe distance from the pedestrian but not prevent it from getting close \
+            to the pedestrian.")
+st.markdown("- $r_s$ : speed reward, to reward the agent for moving fast/to the preferred speed. \
+            This is to encourage the agent to move at a reasonable speed, \
+            but not too fast or too slow.")
+st.markdown("- $r_p$ : path following reward, to reward the agent for following the path. \
+            This is to encourage the agent to follow the path, but not to prevent it from \
+            deviating from the path if necessary.")
+st.markdown("The Reward function is defined as follows:")
+st.markdown(r"> $$R = r_c + r_{nc} + r_{s} + r_p$$")
+st.markdown("We can **eventually** define individual component coefficients to adjust the importance of each component in the final reward. \
+            Respectively, we will name them $w_c$, $w_{nc}$, $w_s$ and $w_p$.")
+st.markdown(r"> $$R = w_c \cdot r_c + w_{nc} \cdot r_{nc} + w_s \cdot r_s + w_p \cdot r_p$$")
  
-# Path following score
-st.header("🛤 Path following score", anchor="path-following-score")
-
-st.markdown("> 📌 **Side note**: This metric is inspired by path following in the context of autonomous agents.")
+st.markdown("> 📌 **Side note**: the component $r_c,r_{nc}, r_{s}$ are based on reward function of **ADD_REF**\
+            The component $r_p$ is handcrafted")
 
 st.markdown("The path following score represents the distance between the initially given path to the autonomous \
             vehicle (AV) and its future position.\
@@ -130,7 +132,7 @@ st.markdown(r"> $$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
 st.markdown("This formula provides a measure of how closely the AV is following the path, with higher values \
             of $R_c$ indicating better adherence to the track.")
 
-st.image(f"{img_path}path_following_illustration.png", use_column_width=True)
+st.image(f"{img_path}Path_following_reward.png", use_column_width=True)
 
 # Plot
 max_distance_display = 20
