@@ -64,7 +64,7 @@ st.markdown("- For the physical representation, we will use the **[kinematic bic
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
 
 st.markdown("- To enhance the realism of our model and guarantee safe driving behavior, the speed for the AV is\
-            $\\vec{v_{AV}} \in[0, 4]$ m/s with a prefered speed equal to $\\vec{v^*_{AV}} = \max(\\vec{v_{AV}})$ , and the acceleration is $\\vec{a_{AV}} \in [0,2]$ m/s². We grant the AV the ability to \
+            $\\vec{v_{AV}} \in[-1, 4]$ m/s with a prefered speed equal to $\\vec{v^*_{AV}} = \max(\\vec{v_{AV}})$ , and the acceleration is $\\vec{a_{AV}} \in [-0.5,2]$ m/s². We grant the AV the ability to \
             go **backward** to explore pentential behaviors but we may refine this behavior to only go forward.")
 
 st.markdown("- The output of the model will consist of two components: \
