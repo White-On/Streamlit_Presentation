@@ -10,18 +10,19 @@ st.set_page_config(page_title="Learning to cross a crowd with an autonomous vehi
 
 #Sidebar
 st.sidebar.page_link("pages/archive.py", label="Archive", icon="🗃️")
-st.sidebar.markdown("## 🌿 Random Seed Controls")
-if st.sidebar.toggle("Random Seed", value=False, help="Toggle and random seeds will be used"):
-    np.random.seed(None)
-else:
-    np.random.seed(42)
-st.sidebar.button("Regenerate Results")
 
 st.sidebar.markdown("## 🗺️ Navigation")
 st.sidebar.markdown("[🔬 Hypothesis](#hypothesis)")
 st.sidebar.markdown("[📦 Reward function](#reward-function)")
 st.sidebar.markdown("[🎨 Scenarios](#scenario)")
 st.sidebar.markdown("[📚 References](#reference)")
+
+st.sidebar.markdown("## 🌿 Random Seed Controls")
+if st.sidebar.toggle("Random Seed", value=False, help="Toggle and random seeds will be used"):
+    np.random.seed(None)
+else:
+    np.random.seed(42)
+st.sidebar.button("Regenerate Results")
 
 
 #Problem/Context
@@ -124,14 +125,6 @@ st.markdown("> 📌 **Side note**: the components $r_c,r_{nc}, r_{s}$ are based 
             The component $r_p$ is handcrafted")
 
 st.header("🛤 Path Following component", anchor="path-following-component")
-# st.markdown("The path following score represents the distance between the initially given path to the autonomous \
-#             vehicle (AV) and its future position.\
-#              In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
-#             the AV and the path, respectively. The formula used to calculate the path following score ($R_c$) is \
-#             given by:")
-# st.markdown(r"> $$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
-# st.markdown("This formula provides a measure of how closely the AV is following the path, with higher values \
-#             of $R_c$ indicating better adherence to the track.")
 
 st.markdown("First, we define **the components $r_p$ responsible for the path-following reward**. The path-following \
             reward is continuous, aiming to penalize the agent for deviating too far from the path or moving in the \
@@ -172,7 +165,6 @@ ax.xaxis.set_ticks(np.arange(0, 181, 20))
 
 st.pyplot(fig)
 
-
 st.markdown("The path following reward with $\\epsilon_{\\theta}$ and $\\epsilon_{path}$:")
 st.markdown(r"> $$r_p = e^{-\frac{\epsilon_{\theta}}{\tau}}(1-\frac{2}{1+e^{-\epsilon_{path} + \sigma_{path}}})$$")
 
@@ -211,7 +203,6 @@ ax[1].annotate(f'Distance to path: {distance_to_rail:.2f}\nProximity component: 
                 (distance_to_rail + 1, 0.5))
 
 all_points = np.meshgrid(np.linspace(-20, 20, 100), np.linspace(-20, 20, 100))
-print(all_points[0].shape)
 # vector a is start point to futur point
 a = futur_point - path[0]
 # vector b is start point to end point
@@ -245,12 +236,10 @@ fig.suptitle('Proximity component', fontsize=16)
 st.pyplot(fig)
 
 # r_p = 1/(espison_theta + 1)
-# print(angle_component.shape)
-# print(proximity_component.shape)
 
+# TODO: figure if this is the right way to combine the two components
 # r_c = np.multiply(angle_component, proximity_component.reshape(-1, 1))
 r_c = np.add(angle_component, proximity_component.reshape(-1, 1))
-print(np.min(r_c), np.max(r_c))
 
 fig= plt.figure(figsize=(15, 6))
 ax = plt.subplot(121)
