@@ -120,19 +120,44 @@ st.markdown("We can **eventually** define individual component coefficients to a
             Respectively, we will name them $w_c$, $w_{nc}$, $w_s$ and $w_p$.")
 st.markdown(r"> $$R = w_c \cdot r_c + w_{nc} \cdot r_{nc} + w_s \cdot r_s + w_p \cdot r_p$$")
  
-st.markdown("> 📌 **Side note**: the component $r_c,r_{nc}, r_{s}$ are based on reward function of **ADD_REF**\
+st.markdown("> 📌 **Side note**: the components $r_c,r_{nc}, r_{s}$ are based on reward function of **ADD_REF**.\
             The component $r_p$ is handcrafted")
 
-st.markdown("The path following score represents the distance between the initially given path to the autonomous \
-            vehicle (AV) and its future position.\
-             In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
-            the AV and the path, respectively. The formula used to calculate the path following score ($R_c$) is \
-            given by:")
-st.markdown(r"> $$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
-st.markdown("This formula provides a measure of how closely the AV is following the path, with higher values \
-            of $R_c$ indicating better adherence to the track.")
+# st.markdown("The path following score represents the distance between the initially given path to the autonomous \
+#             vehicle (AV) and its future position.\
+#              In this context, the variables $d_p$ and $d$ represent the penalty distance and the distance between \
+#             the AV and the path, respectively. The formula used to calculate the path following score ($R_c$) is \
+#             given by:")
+# st.markdown(r"> $$R_c = 1-\frac{2}{1+e^{-d + d_p}}$$")
+# st.markdown("This formula provides a measure of how closely the AV is following the path, with higher values \
+#             of $R_c$ indicating better adherence to the track.")
+
+st.markdown("First, we define the components $r_p$ responsible for the path-following reward. The path-following \
+            reward is continuous, aiming to penalize the agent for deviating too far from the path or moving in the \
+            wrong direction. To achieve this, we evaluate the angle error of the agent's trajectory concerning the \
+            next waypoint on the path, denoted as $\\epsilon_{\\theta}$. Recognizing that considering only the angle error may be \
+            insufficient, we also incorporate the distance between the agent and the path, referred to as \
+            $\\epsilon_{path}$. These two values form the basis of the path-following component. We create two separate \
+            versions—one utilizing only $\\epsilon_{\\theta}$ to explore its individual impact on behavior, and another combining \
+            both elements to assess their collective influence.") 
 
 st.image(f"{img_path}Path_following_reward.png", use_column_width=True)
+st.markdown("The illustration demonstrates the calculation of $\\epsilon_{\\theta}$. As our agent advances along the path, \
+            we compute the angle between the agent's current heading and the vector directed towards the next \
+            waypoint. $d_w$ represents the distance between the agent and the next waypoint, triggering the agent \
+            to proceed to the subsequent waypoint once it falls within a certain threshold.")
+
+st.image(f"{img_path}path_following_illustration.png", use_column_width=True)
+st.markdown("The illustration demonstrates the calculation of $$\\epsilon_{path}$$ as the distance between the agent and \
+            the path. To incentivize the agent to remain near the path, we model the reward using a sigmoid function \
+            centered around the path, with a variance equal to $\\sigma_{path}$.")
+
+st.markdown("The path following reward with only $\\epsilon_{\\theta}$:")
+st.markdown(r"> $$r_p = e^{-\frac{\epsilon_{\theta}}{20}}$$")
+st.markdown("The path following reward with $\\epsilon_{\\theta}$ and $\\epsilon_{path}$:")
+st.markdown(r"> $$r_p = 1-\frac{2}{1+e^{-d + d_p}}$$")#TODO: add the formula
+
+
 
 # Plot
 max_distance_display = 20
