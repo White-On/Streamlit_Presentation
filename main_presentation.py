@@ -64,7 +64,7 @@ st.markdown("- For the physical representation, we will use the **[kinematic bic
 st.image([f"{img_path}bicycle_model.png", f"{img_path}vehicle_dynamic.png"], caption=["", "Kabtoul, Maria, Anne Spalanzani, et Philippe Martinet. « Proactive And Smooth Maneuvering For Navigation Around Pedestrians ». In 2022 International Conference on Robotics and Automation (ICRA), 4723‑29. Philadelphia, PA, USA: IEEE, 2022. https://doi.org/10.1109/ICRA46639.2022.9812255"], width=400)
 
 st.markdown("- To enhance the realism of our model and guarantee safe driving behavior, the speed for the AV is\
-            $\\vec{v_{AV}} \in[-1, 4]$ m/s with a prefered speed equal to $\\vec{v^*_{AV}} = \max(\\vec{v_{AV}})$ , and the acceleration is $\\vec{a_{AV}} \in [-0.5,2]$ m/s². We grant the AV the ability to \
+            $\\vec{v_{AV}} \in[-1, 4]$ m/s with a prefered speed equal to $\\vec{v^*_{AV}} = \max(\\vec{v_{AV}})$ , and the acceleration is $\\vec{a_{AV}} \in [-1,2]$ m/s². We grant the AV the ability to \
             go **backward** to explore pentential behaviors but we may refine this behavior to only go forward.")
 
 st.markdown("- The output of the model will consist of two components: \
@@ -338,72 +338,60 @@ st.pyplot(fig)
 
 # Motion Safety score
 st.header("🦺 Collision/Near collision Component", anchor="motion-safety-score")
+st.markdown(" The last 2 components are the collision ($r_c$) and near collision ($r_{nc}$) components. \
+            These components are designed to penalize the agent for colliding with or getting too close to the pedestrian. \
+            The collision component is a discrete reward, while the near collision component is continuous. \
+            The collision component need the be way more penalizing than any other component:")
+st.markdown(r"$$r_c = \left\{ \begin{array}{rcl}-x & if & \text{collision} \\ 0 & if & \text{no collision}\end{array}\right.tq \space x >> \max(r_{nc}) + \max(r_p) + \max(r_s)$$")
+st.markdown("$r_{nc}$ is not just a discrete reward, but a continuous one, to encourage the agent \
+            to keep a safe distance from the pedestrian but not prevent it from getting close to \
+            the pedestrian. The formula is based around a safe distance calculated with the maximum \
+            deceleration of the AV $d_r$:")
+st.markdown(r"$$d_r = \max(\frac{\vec{v_{AV}}²}{2\min(\vec{a_{AV}})}, d_o)$$")
+st.markdown(r"$$r_{nc} =  e^{\frac{d_p - d_r}{d_r}}$$")
 
-st.image(f'{img_path}motion_safety_notation.png')
-st.markdown("Motion Safety refers to the assessment of potential risks and hazards associated with vehicle \
-            movement, particularly in the presence of pedestrians. Key parameters involved in evaluating \
-            motion safety include the evaluation radius ($eval_r$), the number of pedestrians within \
-            this radius ($nb_{p}$), the distance between the vehicle and each pedestrian ($d_i$), and the penalty \
-            distance ($d_p$). The safety score ($S_c$) is computed using the following formula:")
-st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\frac{\sum_{i=1}^{nb_{p}}d_i}{d_i} + d_p}}$$")
-st.write("which is equivalent to:")
-st.markdown(r"> $$S_c = -1 + \frac{2}{1+e^{-\bar{d_i} + d_p}}$$")
-st.markdown("This formula quantifies the level of safety during vehicle motion, with higher values of $S_c$ indicating \
-            a greater degree of safety. We also add the same score but only evaluated with the closest pedestrian \
-            to compare the two scores.")
+st.markdown("Here $d_o$ is a minimum distance to keep between the AV and the pedestrian. And \
+            $d_p$ is the distance between the AV and the closest pedestrian.")
 
-def safety_reward(distance, penalty_distance):
-    return 2 / (1 + np.exp(-distance + penalty_distance)) - 1
+v_ev = np.linspace(0, 10, n)
+a_max = st.slider("Maximum deceleration [m/s²]", 0.1, 10.0, 2.0)
+min_safe_distance = st.slider("Minimum safe distance [m]", 0.1, 10.0, 5.0)
+do = np.ones(n) * min_safe_distance
+dr = np.maximum(np.power(v_ev,2) / (2 * a_max), do)
+distance_pedesrian = np.linspace(0, 20, n).reshape(-1, 1)
+r_nc = np.exp((distance_pedesrian-dr)/dr) 
 
-eval_radius = st.slider("Evaluation radius", 10, 30, 20)
-nb_pedestrian = st.slider("Number of pedestrian", 1, 100, 10)
-mu = 2.5 # in meter
-# radom direction from the vehicle
-random_vector = np.random.uniform(-np.pi, np.pi, (2, nb_pedestrian))
-random_vector = np.array([np.cos(random_vector[0]), np.sin(random_vector[1])])
-# normalize the vector
-random_vector /= np.linalg.norm(random_vector, axis=0)
-# random distance
-d = np.random.randn(nb_pedestrian) * mu + eval_radius/2
-# random position
-pedestrian_pos = d * random_vector
-
-penalty_distance = st.slider("Penalty distance", 0, 20, 6)
-mean_distance = np.mean(d)
-lowess_distance = d[np.argmin(np.abs(d))]
-linspace_distance = np.linspace(0, eval_radius, 100)
-Sc = safety_reward(linspace_distance, penalty_distance)
-
-fig, axe = plt.subplots(1, 2, figsize=(10, 5))
-
-axe[0].scatter(pedestrian_pos[0], pedestrian_pos[1], label='Pedestrian')
-# the vehicle is a rectangle
-axe[0].scatter(0, 0, label='Vehicle', c='r', marker='s', s=100)
-axe[0].set_title('Pedestrian position')
-axe[0].set_xlabel('x')
-axe[0].set_ylabel('y')
-axe[0].grid(True, linewidth=0.5, linestyle='--')
-axe[0].legend()
-axe[0].set_xlim(-eval_radius, eval_radius)
-axe[0].set_ylim(-eval_radius, eval_radius)
-
-axe[1].plot(linspace_distance, Sc)
-axe[1].set_title('Safety reward')
-axe[1].set_xlabel('Mean distance to the pedestrian')
-axe[1].set_ylabel('Reward')
-axe[1].grid(True, linewidth=0.5, linestyle='--')
-axe[1].axvline(mean_distance, color='r', linestyle='--', label='Mean distance')
-axe[1].annotate(f'Mean distance: {mean_distance:.2f}\nSafety reward: {safety_reward(mean_distance,penalty_distance):.2f}',
-                (mean_distance + 1, 0.5))
-axe[1].axvline(lowess_distance, color='r', linestyle='--', label='Lowess distance')
-axe[1].annotate(f'Lowess Distance: {lowess_distance:.2f}\nSafety reward: {safety_reward(lowess_distance,penalty_distance):.2f}',
-                (lowess_distance + 1, 0.0))
+fig = plt.figure(figsize=(15, 5))
+ax = fig.add_subplot(131)
+plt.axhline(min_safe_distance, color='r', linestyle='--', alpha=0.5)
+plt.plot(v_ev, np.power(v_ev,2) / (2 * a_max), label='Braking distance', alpha=0.5)
+plt.plot(v_ev, dr, label='Safe distance')
+plt.xlabel('Linear velocity [m/s]')
+plt.ylabel('$d_r$')
+plt.title('Safe distance as a function of the linear velocity')
+plt.grid(True, linewidth=0.5, linestyle='--')
+plt.legend()
 
 
-st.write(r"We created a scenario where our vehicle is positioned in the middle of a shared space with pedestrians around. In this representation, the pedestrians are positioned according to a normal distribution ($mu = \frac{eval_r}{2}, \sigma = 2.5$) shaped like a donut around the car.")
+#3D plot
+
+ax = fig.add_subplot(132, projection='3d')
+ax.plot_surface(v_ev, distance_pedesrian, r_nc)
+ax.set_xlabel('Linear velocity [m/s]')
+ax.set_ylabel('Distance to pedestrian [m]')
+ax.set_zlabel('Reward')
+
+#2D plot
+ax = fig.add_subplot(133)
+coutour = ax.contourf(v_ev.flatten(), distance_pedesrian.flatten(), r_nc)
+ax.set_xlabel('Linear velocity [m/s]')
+ax.set_ylabel('Distance to pedestrian [m]')
+ax.set_title('Reward function for the pedestrian')
+
+fig.colorbar(coutour)
+fig.tight_layout(pad=3)
+
 st.pyplot(fig)
-
-
 
 # Senario
 st.header("🎨 Scenario", anchor="scenario")
