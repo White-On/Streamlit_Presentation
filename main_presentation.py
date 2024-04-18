@@ -16,8 +16,8 @@ st.sidebar.page_link("pages/archive.py", label="Archive", icon="🗃️")
 
 st.sidebar.markdown("## 🗺️ Navigation")
 st.sidebar.markdown("[🔬 Hypothesis](#hypothesis)")
-st.sidebar.markdown("[📝 Variables name recap](#variables-name-recap)")
 st.sidebar.markdown("[📦 Reward function](#reward-function)")
+st.sidebar.markdown("[📝 Variables name recap](#variables-name-recap)")
 st.sidebar.markdown("[🎨 Scenarios](#scenario)")
 st.sidebar.markdown("[📚 References](#reference)")
 
@@ -133,8 +133,7 @@ st.markdown(
             follow a normal distribution as $\mathcal{N}(1.4, 0.5)$."
 )
 
-# Variables name recap
-st.header("📝 Variables name recap", anchor="variables-name-recap")
+
 
 # Reward function
 st.header("📊 Reward Function's Components", anchor="reward-function")
@@ -485,6 +484,39 @@ fig.colorbar(coutour)
 fig.tight_layout(pad=3)
 
 st.pyplot(fig)
+
+# Variables name recap
+st.header("📝 Variables name recap", anchor="variables-name-recap")
+st.markdown(
+    "- $W$: The path of the AV, a list of waypoints. \n\
+- $M$: The occupancy grid map of the environment. \n\
+- $r_{rov}$: The range of view of the AV. \n\
+- $\\alpha_{fov}$: The field of view of the AV. \n\
+- $v_{AV}$: The linear velocity of the AV. \n\
+- $v_{AV}^*$: The prefered linear velocity of the AV. \n\
+- $a_{AV}$: The acceleration of the AV. \n\
+- $\delta$: The wheels angle of the AV. \n\
+- $s$: The dimensions of the AV. \n\
+- $r_{ped}$: The radius of the pedestrian. \n\
+- $v_{ped}$: The linear velocity of the pedestrian. \n\
+- $v_{ped}^*$: The prefered linear velocity of the pedestrian. \n\
+- $d_o$: The minimum distance to keep between the AV and the pedestrian. \n\
+- $d_r$: The safe distance between the AV and the pedestrian. \n\
+- $d_p$: The distance between the AV and the closest pedestrian. \n\
+- $r_c$: The collision reward. \n\
+- $r_{nc}$: The near collision reward. \n\
+- $\\epsilon_{\\theta}$: The angle error of the agent's trajectory concerning the next waypoint on the path. \n\
+- $\\epsilon_{path}$: The distance between the agent and the path. \n\
+- $\\sigma_{path}$: The zero value threashold of the sigmoid function. \n\
+- $\\tau$: The parameter to control the steepness of the path following component.\n\
+- $r_s$: The speed reward. \n\
+- $r_p$: The path following reward. \n\
+- $w_c$: The collision reward coefficient. \n\
+- $w_{nc}$: The near collision reward coefficient. \n\
+- $w_s$: The speed reward coefficient. \n\
+- $w_p$: The path following reward coefficient. "
+
+)
 
 # Senario
 st.header("🎨 Scenario", anchor="scenario")
