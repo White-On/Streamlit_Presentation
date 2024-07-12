@@ -71,11 +71,11 @@ st.image([f"{img_path}{zoe}" for zoe in zoe_img], width=300)
 st.markdown(
     "- In the reality, the AV can perceive the environment **through sensors**. Thoses sensors can then give us \
      information about the environment. We will do the Hypothesis that the AV can map pedestrians in a **range $r_{rov}$= 30 meters** and a in a \
-            **field of view equal to $\\alpha_{fov}$ = 360°** around it . With this information, the Autonomous Vehicle (AV) can construct a detailed \
-                map of its environment using an **Occupancy Grid Map** (here named $M$), as demonstrated in [[6]](#reference)[[7]](#reference)[[8]](#reference). \
-                This map provides a bird's-eye view of the surroundings and can be augmented to include various additional information such as *velocity, \
-                    orientation, and the probability of occupancy in the next time step*. **To begin with simpler approach**, we will focus on tracking \
-                        the identification number of pedestrians, along with their velocity and orientation. A similar gird is employed in [[13]](#reference)"
+    **field of view equal to $\\alpha_{fov}$ = 360°** around it . With this information, the Autonomous Vehicle (AV) can construct a detailed \
+    map of its environment using an **Occupancy Grid Map** (here named $M$), as demonstrated in [[6]](#reference)[[7]](#reference)[[8]](#reference). \
+    This map provides a bird's-eye view of the surroundings and can be augmented to include various additional information such as *velocity, \
+    orientation, and the probability of occupancy in the next time step*. **To begin with simpler approach**, we will focus on tracking \
+    the identification number of pedestrians, along with their velocity and orientation. A similar gird is employed in [[13]](#reference)"
 )
 
 st.markdown(
@@ -132,7 +132,6 @@ st.markdown(
     "- The pedestrians will walk with a speed $v_{ped} \in [0,2]$ m/s and a prefered speed $v_{ped}^* = 1.4$ m/s [[9]](#reference)[[10]](#reference) but we may refine this values to \
             follow a normal distribution as $\mathcal{N}(1.4, 0.5)$."
 )
-
 
 
 # Reward function
@@ -354,17 +353,15 @@ st.markdown(
             The speed reward is calculated using the following formula:"
 )
 st.markdown(
-    r"$$r_s = \left\{ \begin{array}{rcl}1 - \frac{\vec{v^*_{AV}} - \vec{v_{AV}}}{\vec{v^*_{AV}}} & if & 0<\vec{v_{AV}}\leq \vec{v^*_{AV}} \\ -1 & if & \vec{v_{AV}}\leq0 \\ -0.5 & if & \vec{v_{AV}}> \vec{v^*_{AV}}\end{array}\right.$$"
+    r"$$r_s = \left\{ \begin{array}{rcl}2(e^{\vec{v_{AV}} - \vec{v^*_{AV}}} - 0.5) & if & \vec{v_{AV}}\leq \vec{v^*_{AV}} \\ 2(e^{-\vec{v_{AV}} + \vec{v^*_{AV}}} - 0.5) & if & \vec{v_{AV}} > \vec{v^*_{AV}}\end{array}\right.$$"
 )
 
 
 def speed_reward(current_speed, pref_speed):
-    if 0.0 < current_speed <= pref_speed:
-        return 1 - (pref_speed - current_speed) / pref_speed
+    if current_speed <= pref_speed:
+        return (np.exp(current_speed - pref_speed) - 0.5 ) * 2
     elif current_speed > pref_speed:
-        return -0.5
-    elif current_speed <= 0.0:
-        return -1.0
+        return (np.exp(-current_speed + pref_speed) - 0.5 ) * 2
 
 
 v_ev = np.linspace(-2, 10, n)
@@ -389,36 +386,6 @@ st.markdown(
             we can see that the reward seems to reward the agent to go right above the 0 speed."
 )
 
-st.markdown(
-    r"$$r_s = \left\{ \begin{array}{rcl}\lambda(\vec{v^*_{AV}} - \vec{v_{AV}}) & if & 0<\vec{v_{AV}}\leq \vec{v^*_{AV}} \\ -1 & if & \vec{v_{AV}}\leq0 \\ -0.5 & if & \vec{v_{AV}}> \vec{v^*_{AV}}\end{array}\right. \lambda = \frac{1}{\vec{v^*_{AV}}}$$"
-)
-
-
-def speed_reward(current_speed, pref_speed):
-    if 0.0 < current_speed <= pref_speed:
-        l = 1 / pref_speed  # old formula
-        return l * (pref_speed - current_speed)
-    elif current_speed > pref_speed:
-        return -0.5
-    elif current_speed <= 0.0:
-        return -1.0
-
-
-v_ev = np.linspace(-2, 10, n)
-
-speed_function = np.vectorize(speed_reward)
-r_speed = speed_function(v_ev, pref_speed)
-
-fig = plt.figure(figsize=(10, 5))
-plt.axvline(pref_speed, color="r", linestyle="--", alpha=0.5, label="Preferred speed")
-plt.plot(v_ev, r_speed)
-plt.xlabel("Linear velocity [m/s]")
-plt.ylabel("Reward")
-plt.title("Speed reward function")
-plt.grid(True, linewidth=0.5, linestyle="--")
-plt.legend()
-
-st.pyplot(fig)
 
 # Motion Safety score
 st.header("🦺 Collision/Near collision Component", anchor="motion-safety-score")
@@ -438,7 +405,7 @@ st.markdown(
             deceleration of the AV $d_r$:"
 )
 st.markdown(r"$$d_r = \max(\frac{\vec{v_{AV}}²}{2\min(\vec{a_{AV}})}, d_o)$$")
-st.markdown(r"$$r_{nc} =  e^{\frac{d_p - d_r}{d_r}}$$")
+st.markdown(r"$$r_{nc} =  e^{\frac{d_p - d_r}{d_r}}\vec{v_{AV}}$$")
 
 st.markdown(
     "Here $d_o$ is a minimum distance to keep between the AV and the pedestrian. And \
@@ -451,7 +418,7 @@ min_safe_distance = st.slider("Minimum safe distance [m]", 0.1, 10.0, 5.0)
 do = np.ones(n) * min_safe_distance
 dr = np.maximum(np.power(v_ev, 2) / (2 * a_max), do)
 distance_pedesrian = np.linspace(0, 20, n).reshape(-1, 1)
-r_nc = np.exp((distance_pedesrian - dr) / dr)
+r_nc = np.exp((distance_pedesrian - dr) / dr) * v_ev
 
 fig = plt.figure(figsize=(15, 5))
 ax = fig.add_subplot(131)
@@ -515,7 +482,6 @@ st.markdown(
 - $w_{nc}$: The near collision reward coefficient. \n\
 - $w_s$: The speed reward coefficient. \n\
 - $w_p$: The path following reward coefficient. "
-
 )
 
 # Senario

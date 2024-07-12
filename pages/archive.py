@@ -300,6 +300,80 @@ st.write(
 )
 st.pyplot(fig)
 
+# Speed reward
+st.header("🚀 Speed component", anchor="speed-component")
+st.markdown(
+    "The speed reward component is designed to encourage the agent to move at a preferred speed. \
+            The reward is continuous, with higher values indicating that the agent is moving at the desired speed. \
+            The speed reward is calculated using the following formula:"
+)
+st.markdown(
+    r"$$r_s = \left\{ \begin{array}{rcl}1 - \frac{\vec{v^*_{AV}} - \vec{v_{AV}}}{\vec{v^*_{AV}}} & if & 0<\vec{v_{AV}}\leq \vec{v^*_{AV}} \\ -1 & if & \vec{v_{AV}}\leq0 \\ -0.5 & if & \vec{v_{AV}}> \vec{v^*_{AV}}\end{array}\right.$$"
+)
+
+
+def speed_reward(current_speed, pref_speed):
+    if 0.0 < current_speed <= pref_speed:
+        return 1 - (pref_speed - current_speed) / pref_speed
+    elif current_speed > pref_speed:
+        return -0.5
+    elif current_speed <= 0.0:
+        return -1.0
+
+n = 100
+v_ev = np.linspace(-2, 10, n)
+
+speed_function = np.vectorize(speed_reward)
+pref_speed = st.slider("Preferred speed [m/s]", 0.1, 10.0, 5.0)
+r_speed = speed_function(v_ev, pref_speed)
+
+fig = plt.figure(figsize=(10, 5))
+plt.axvline(pref_speed, color="r", linestyle="--", alpha=0.5, label="Preferred speed")
+plt.plot(v_ev, r_speed)
+plt.xlabel("Linear velocity [m/s]")
+plt.ylabel("Reward")
+plt.title("Speed reward function")
+plt.grid(True, linewidth=0.5, linestyle="--")
+plt.legend()
+
+st.pyplot(fig)
+
+st.markdown(
+    "> 📌 **Side note**: The original $r_ {s}$ component[[12]](#reference) was written like the following formula but once plotted, \
+            we can see that the reward seems to reward the agent to go right above the 0 speed."
+)
+
+st.markdown(
+    r"$$r_s = \left\{ \begin{array}{rcl}\lambda(\vec{v^*_{AV}} - \vec{v_{AV}}) & if & 0<\vec{v_{AV}}\leq \vec{v^*_{AV}} \\ -1 & if & \vec{v_{AV}}\leq0 \\ -0.5 & if & \vec{v_{AV}}> \vec{v^*_{AV}}\end{array}\right. \lambda = \frac{1}{\vec{v^*_{AV}}}$$"
+)
+
+
+def speed_reward(current_speed, pref_speed):
+    if 0.0 < current_speed <= pref_speed:
+        l = 1 / pref_speed  # old formula
+        return l * (pref_speed - current_speed)
+    elif current_speed > pref_speed:
+        return -0.5
+    elif current_speed <= 0.0:
+        return -1.0
+
+
+v_ev = np.linspace(-2, 10, n)
+
+speed_function = np.vectorize(speed_reward)
+r_speed = speed_function(v_ev, pref_speed)
+
+fig = plt.figure(figsize=(10, 5))
+plt.axvline(pref_speed, color="r", linestyle="--", alpha=0.5, label="Preferred speed")
+plt.plot(v_ev, r_speed)
+plt.xlabel("Linear velocity [m/s]")
+plt.ylabel("Reward")
+plt.title("Speed reward function")
+plt.grid(True, linewidth=0.5, linestyle="--")
+plt.legend()
+
+st.pyplot(fig)
+
 ### Trajectory Quality
 st.header("🎯 Trajectory Quality", anchor="trajectory-quality")
 
