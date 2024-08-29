@@ -320,6 +320,7 @@ def speed_reward(current_speed, pref_speed):
     elif current_speed <= 0.0:
         return -1.0
 
+
 n = 100
 v_ev = np.linspace(-2, 10, n)
 

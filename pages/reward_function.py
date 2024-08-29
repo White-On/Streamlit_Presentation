@@ -2,6 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def write_reward_function(img_path) -> None:
     st.header("📊 Reward Function's Components", anchor="reward-function")
     st.markdown(
@@ -51,6 +52,7 @@ def write_reward_function(img_path) -> None:
     write_path_following_component(img_path, number_of_points)
     write_speed_reward_component(img_path, number_of_points)
     write_collision_near_collision_component(img_path, number_of_points)
+
 
 def write_path_following_component(img_path, n) -> None:
     st.header("🛤 Path Following component", anchor="path-following-component")
@@ -106,7 +108,6 @@ def write_path_following_component(img_path, n) -> None:
         r"> $$r_p = e^{-\frac{\epsilon_{\theta}}{\tau}}(1-\frac{2}{1+e^{-\epsilon_{path} + \sigma_{path}}})$$"
     )
 
-
     def distance_from_path(point, path):
         a = point - path[0]
         b = path[1] - path[0]
@@ -117,10 +118,8 @@ def write_path_following_component(img_path, n) -> None:
         distance_to_rail = np.linalg.norm(point - normal_point)
         return distance_to_rail
 
-
     def proximity_reward(distance, penalty_distance):
         return 1 - 2 / (1 + np.exp(-distance + penalty_distance))
-
 
     max_distance_display = 20
     d = np.linspace(0, max_distance_display, n)
@@ -214,9 +213,12 @@ def write_path_following_component(img_path, n) -> None:
     ax.view_init(elev=10.0, azim=30)
 
     fig.tight_layout(pad=0)
-    fig.suptitle("$r_c$ for the angle difference and distance to path", fontsize=16, y=1.05)
+    fig.suptitle(
+        "$r_c$ for the angle difference and distance to path", fontsize=16, y=1.05
+    )
 
     st.pyplot(fig)
+
 
 def write_speed_reward_component(img_path, n) -> None:
     # Speed reward
@@ -230,13 +232,11 @@ def write_speed_reward_component(img_path, n) -> None:
         r"$$r_s = \left\{ \begin{array}{rcl}2(e^{\vec{v_{AV}} - \vec{v^*_{AV}}} - 0.5) & if & \vec{v_{AV}}\leq \vec{v^*_{AV}} \\ 2(e^{-\vec{v_{AV}} + \vec{v^*_{AV}}} - 0.5) & if & \vec{v_{AV}} > \vec{v^*_{AV}}\end{array}\right.$$"
     )
 
-
     def speed_reward(current_speed, pref_speed):
         if current_speed <= pref_speed:
-            return (np.exp(current_speed - pref_speed) - 0.5 ) * 2
+            return (np.exp(current_speed - pref_speed) - 0.5) * 2
         elif current_speed > pref_speed:
-            return (np.exp(-current_speed + pref_speed) - 0.5 ) * 2
-
+            return (np.exp(-current_speed + pref_speed) - 0.5) * 2
 
     v_ev = np.linspace(-2, 10, n)
 
@@ -245,7 +245,9 @@ def write_speed_reward_component(img_path, n) -> None:
     r_speed = speed_function(v_ev, pref_speed)
 
     fig = plt.figure(figsize=(10, 5))
-    plt.axvline(pref_speed, color="r", linestyle="--", alpha=0.5, label="Preferred speed")
+    plt.axvline(
+        pref_speed, color="r", linestyle="--", alpha=0.5, label="Preferred speed"
+    )
     plt.plot(v_ev, r_speed)
     plt.xlabel("Linear velocity [m/s]")
     plt.ylabel("Reward")
@@ -259,6 +261,7 @@ def write_speed_reward_component(img_path, n) -> None:
         "> 📌 **Side note**: The original $r_ {s}$ component[[12]](#reference) was written like the following formula but once plotted, \
                 we can see that the reward seems to reward the agent to go right above the 0 speed."
     )
+
 
 def write_collision_near_collision_component(img_path, n) -> None:
     # Motion Safety score
@@ -304,7 +307,6 @@ def write_collision_near_collision_component(img_path, n) -> None:
     plt.title("Safe distance as a function of the linear velocity")
     plt.grid(True, linewidth=0.5, linestyle="--")
     plt.legend()
-
 
     # 3D plot
 
@@ -357,6 +359,7 @@ def write_collision_near_collision_component(img_path, n) -> None:
     - $w_s$: The speed reward coefficient. \n\
     - $w_p$: The path following reward coefficient. "
     )
+
 
 def write_progression_component(img_path, n) -> None:
     st.header("📈 Progression component", anchor="progression-component")

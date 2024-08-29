@@ -17,6 +17,7 @@ st.set_page_config(
 # Sidebar
 st.sidebar.page_link("pages/archive.py", label="Archive", icon="🗃️")
 
+
 st.sidebar.markdown("## 🗺️ Navigation")
 st.sidebar.markdown("[🔬 Hypothesis](#hypothesis)")
 st.sidebar.markdown("[📦 Reward function](#reward-function)")
