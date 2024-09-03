@@ -82,6 +82,8 @@ def write_car_hypothesis(img_path) -> None:
 
     st.image(f"{img_path}graph_representation.png")
 
+    st.video(f"{img_path}graphe_representation.mp4", loop=True, autoplay=True, muted=True)
+
     delta_lim = r"$\delta \in [-\frac{\pi}{6}, \frac{\pi}{6}]$"
     v_lim = r"$v_{AV} \in [0, 4]$"
     v = r"$v_{AV}$"
